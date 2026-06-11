@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>발상 연구소 — 매일 10개, 파괴는 7번째부터</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFAF7;
+  --ink:#16161A;
+  --ultra:#2B3FE0;
+  --marker:#FFE34D;
+  --gray:#8A8A93;
+  --line:#E4E4DE;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'IBM Plex Sans KR',sans-serif;
+  line-height:1.6;
+  min-height:100vh;
+}
+.display{font-family:'Black Han Sans',sans-serif;font-weight:400;letter-spacing:-0.01em}
+
+/* ---------- header ---------- */
+header{
+  border-bottom:2px solid var(--ink);
+  padding:18px 20px 14px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  max-width:880px;margin:0 auto;
+}
+header h1{font-size:1.5rem}
+header h1 .display{color:var(--ultra)}
+.streak{
+  font-size:.85rem;color:var(--gray);text-align:right;white-space:nowrap;
+}
+.streak b{
+  font-family:'Black Han Sans';font-size:1.3rem;color:var(--ink);
+  background:linear-gradient(transparent 55%, var(--marker) 55%);
+  padding:0 3px;
+}
+
+/* ---------- tabs ---------- */
+nav{
+  max-width:880px;margin:0 auto;display:flex;gap:0;
+  border-bottom:1px solid var(--line);
+}
+nav button{
+  flex:1;padding:13px 8px;background:none;border:none;cursor:pointer;
+  font-family:'IBM Plex Sans KR';font-size:.95rem;font-weight:500;color:var(--gray);
+  border-bottom:3px solid transparent;transition:color .15s,border-color .15s;
+}
+nav button.active{color:var(--ultra);border-bottom-color:var(--ultra)}
+nav button:focus-visible{outline:2px solid var(--ultra);outline-offset:-2px}
+
+main{max-width:880px;margin:0 auto;padding:28px 20px 80px}
+section{display:none}
+section.show{display:block}
+
+/* ---------- sprint ---------- */
+.sprint-head{margin-bottom:22px}
+.eyebrow{
+  font-size:.75rem;font-weight:600;letter-spacing:.12em;color:var(--ultra);
+  text-transform:uppercase;margin-bottom:6px;
+}
+.sprint-head h2{font-size:1.6rem;line-height:1.3}
+.sprint-head h2 .hl{background:linear-gradient(transparent 55%, var(--marker) 55%);padding:0 2px}
+
+.topic-row{display:flex;gap:8px;margin:18px 0 26px}
+input[type=text],textarea{
+  font-family:'IBM Plex Sans KR';font-size:1rem;color:var(--ink);
+  background:#fff;border:1.5px solid var(--ink);border-radius:0;
+  padding:11px 13px;width:100%;
+}
+input:focus,textarea:focus{outline:2px solid var(--ultra);outline-offset:1px}
+button.primary{
+  font-family:'IBM Plex Sans KR';font-weight:600;font-size:.95rem;
+  background:var(--ultra);color:#fff;border:none;padding:11px 20px;cursor:pointer;
+  white-space:nowrap;
+}
+button.primary:hover{background:#1F30C4}
+button.ghost{
+  font-family:'IBM Plex Sans KR';font-size:.85rem;font-weight:500;
+  background:none;border:1.5px solid var(--ink);padding:7px 14px;cursor:pointer;color:var(--ink);
+}
+button.ghost:hover{background:var(--ink);color:#fff}
+
+/* signature: 10-slot rail, 7~10 = 파괴 구간 */
+.rail{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-bottom:8px}
+.rail .slot{
+  height:10px;border:1.5px solid var(--ink);background:#fff;
+}
+.rail .slot.zone{border-color:var(--ultra);background:repeating-linear-gradient(45deg,#fff,#fff 3px,var(--marker) 3px,var(--marker) 6px)}
+.rail .slot.fill{background:var(--ink)}
+.rail .slot.zone.fill{background:var(--ultra)}
+.rail-label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--gray);margin-bottom:22px}
+.rail-label .zone-tag{color:var(--ultra);font-weight:600}
+
+.idea-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.idea-list li{
+  display:flex;gap:12px;align-items:baseline;
+  border-left:3px solid var(--line);padding:6px 0 6px 14px;
+}
+.idea-list li.zone{border-left-color:var(--ultra);background:rgba(255,227,77,.18)}
+.idea-list li .num{font-family:'Black Han Sans';font-size:1.05rem;color:var(--gray);min-width:24px}
+.idea-list li.zone .num{color:var(--ultra)}
+.idea-input-row{display:flex;gap:8px;align-items:center}
+.idea-input-row .num{font-family:'Black Han Sans';font-size:1.4rem;min-width:34px;text-align:center}
+.idea-input-row .num.zone{color:var(--ultra)}
+.zone-banner{
+  margin:14px 0;padding:10px 14px;font-size:.9rem;font-weight:500;
+  background:var(--marker);border-left:4px solid var(--ultra);
+}
+.done-banner{
+  margin:20px 0;padding:18px;text-align:center;border:2px solid var(--ultra);
+}
+.done-banner .display{font-size:1.4rem;color:var(--ultra);display:block;margin-bottom:6px}
+
+/* ---------- vault ---------- */
+.vault-item{
+  border:1.5px solid var(--ink);background:#fff;padding:16px;margin-bottom:14px;
+}
+.vault-item .meta{font-size:.78rem;color:var(--gray);margin-bottom:4px}
+.vault-item .txt{font-size:1rem;margin-bottom:12px}
+.score-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.crit{display:flex;align-items:center;gap:6px;font-size:.82rem}
+.crit .dots{display:flex;gap:3px}
+.crit .dot{
+  width:18px;height:18px;border:1.5px solid var(--ink);background:#fff;cursor:pointer;
+  font-size:.7rem;display:flex;align-items:center;justify-content:center;
+}
+.crit .dot.on{background:var(--ultra);border-color:var(--ultra);color:#fff}
+.total{
+  margin-left:auto;font-family:'Black Han Sans';font-size:1.1rem;
+}
+.total.hi{color:var(--ultra)}
+.vault-actions{margin-top:12px;display:flex;gap:8px}
+.empty{
+  padding:48px 20px;text-align:center;color:var(--gray);border:1.5px dashed var(--line);
+}
+.empty b{color:var(--ink)}
+
+/* ---------- validation ---------- */
+.kanban{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:640px){.kanban{grid-template-columns:1fr}}
+.col h3{
+  font-size:.85rem;font-weight:600;letter-spacing:.06em;
+  border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:10px;
+}
+.col h3 span{color:var(--gray);font-weight:400}
+.card{
+  border:1.5px solid var(--ink);background:#fff;padding:12px;margin-bottom:10px;font-size:.9rem;
+}
+.card .hyp{font-size:.8rem;color:var(--gray);margin-top:6px;white-space:pre-wrap}
+.card .move{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.card button{font-size:.75rem;padding:5px 10px}
+.card.win{border-color:var(--ultra);box-shadow:3px 3px 0 var(--marker)}
+
+dialog{
+  border:2px solid var(--ink);background:var(--paper);padding:24px;max-width:480px;width:92%;
+}
+dialog::backdrop{background:rgba(22,22,26,.45)}
+dialog h3{font-size:1.1rem;margin-bottom:12px}
+dialog textarea{min-height:90px;margin:10px 0;resize:vertical}
+dialog .row{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+
+footer{
+  max-width:880px;margin:0 auto;padding:20px;font-size:.75rem;color:var(--gray);
+  border-top:1px solid var(--line);
+}
+@media(prefers-reduced-motion:no-preference){
+  section.show{animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="display">발상 연구소</span> <span style="font-size:.85rem;color:var(--gray);font-weight:400">매일 10개, 파괴는 7번째부터</span></h1>
+  <div class="streak">연속 기록 <b id="streakNum">0</b> 일</div>
+</header>
+
+<nav>
+  <button class="active" data-tab="sprint">오늘의 스프린트</button>
+  <button data-tab="vault">아이디어 금고</button>
+  <button data-tab="board">검증 보드</button>
+</nav>
+
+<main>
+
+<!-- ===== 스프린트 ===== -->
+<section id="sprint" class="show">
+  <div class="sprint-head">
+    <div class="eyebrow">Daily Sprint</div>
+    <h2>불편함 하나를 잡고, <span class="hl">아이디어 10개</span>를 밀어붙이세요</h2>
+  </div>
+
+  <div id="topicArea">
+    <div class="topic-row">
+      <input type="text" id="topicInput" placeholder="오늘의 불편함 — 예: 입주자대표회의 자료가 매번 부실하다" maxlength="120">
+      <button class="primary" onclick="startSprint()">시작</button>
+    </div>
+  </div>
+
+  <div id="sprintArea" style="display:none">
+    <p style="font-size:.9rem;margin-bottom:14px">주제: <b id="topicLabel"></b></p>
+    <div class="rail" id="rail"></div>
+    <div class="rail-label"><span>1 — 6 익숙한 답</span><span class="zone-tag">7 — 10 파괴 구간</span></div>
+
+    <ul class="idea-list" id="ideaList"></ul>
+
+    <div id="zoneBanner" class="zone-banner" style="display:none">
+      여기서부터 파괴 구간입니다. 뻔한 답은 다 썼습니다 — 거꾸로 뒤집거나, 10배로 키우거나, 공짜로 만들어 보세요.
+    </div>
+
+    <div class="idea-input-row" id="ideaInputRow">
+      <span class="num" id="nextNum">1</span>
+      <input type="text" id="ideaInput" placeholder="아이디어를 입력하고 Enter" maxlength="200">
+      <button class="primary" onclick="addIdea()">추가</button>
+    </div>
+
+    <div id="doneBanner" class="done-banner" style="display:none">
+      <span class="display">10개 완주</span>
+      오늘의 스프린트 완료. 파괴 구간(7–10) 아이디어가 금고에 저장됐습니다. 금고에서 점수를 매겨 보세요.
+      <div style="margin-top:14px"><button class="ghost" onclick="resetSprint()">새 스프린트 시작</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 금고 ===== -->
+<section id="vault">
+  <div class="sprint-head">
+    <div class="eyebrow">Idea Vault</div>
+    <h2>3가지 기준으로 점수를 매기고, <span class="hl">7점 이상</span>만 검증으로 보냅니다</h2>
+    <p style="font-size:.85rem;color:var(--gray);margin-top:8px">기준: ① 내가 직접 고객인가 ② 1주 안에 테스트 가능한가 ③ AI로 비용 1/10 가능한가 — 각 0~3점</p>
+  </div>
+  <div id="vaultList"></div>
+</section>
+
+<!-- ===== 검증 보드 ===== -->
+<section id="board">
+  <div class="sprint-head">
+    <div class="eyebrow">Validation Board</div>
+    <h2>만들기 전에 <span class="hl">돈 낼 사람</span>부터 찾습니다</h2>
+  </div>
+  <div class="kanban">
+    <div class="col"><h3>가설 <span id="cnt-hypo"></span></h3><div id="col-hypo"></div></div>
+    <div class="col"><h3>테스트 중 <span id="cnt-test"></span></h3><div id="col-test"></div></div>
+    <div class="col"><h3>결과 <span id="cnt-done"></span></h3><div id="col-done"></div></div>
+  </div>
+</section>
+
+</main>
+
+<footer>발상 연구소 · 데이터는 이 브라우저에 저장됩니다 · 매일 10분, 한 가지 불편함</footer>
+
+<!-- 가설 입력 다이얼로그 -->
+<dialog id="hypoDialog">
+  <h3>검증 가설 세우기</h3>
+  <p style="font-size:.85rem;color:var(--gray)">형식: "____한 사람은, ____에 월 ____원을 낼 것이다"</p>
+  <textarea id="hypoText" placeholder="예: 40대 자영업자는 AI 주식 요약 리포트에 월 9,900원을 낼 것이다"></textarea>
+  <div class="row">
+    <button class="ghost" onclick="hypoDialog.close()">취소</button>
+    <button class="primary" onclick="saveHypo()">검증 보드로 보내기</button>
+  </div>
+</dialog>
+
+<script>
+/* ========== 저장소 어댑터: Claude 아티팩트 ↔ GitHub Pages 모두 지원 ========== */
+const store = {
+  async get(k){
+    if(window.storage){ try{ const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; }catch(e){ return null; } }
+    try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; }
+  },
+  async set(k,v){
+    if(window.storage){ try{ await window.storage.set(k, JSON.stringify(v)); return; }catch(e){} }
+    try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
+  }
+};
+
+let state = { streak:0, lastDay:null, sprint:null, vault:[], board:[] };
+let pendingBoardIdea = null;
+
+const $ = id => document.getElementById(id);
+const today = () => new Date().toISOString().slice(0,10);
+const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function load(){
+  const saved = await store.get('lab-state');
+  if(saved) state = Object.assign(state, saved);
+  renderAll();
+}
+function save(){ store.set('lab-state', state); }
+
+/* ---------- 탭 ---------- */
+document.querySelectorAll('nav button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('section').forEach(x=>x.classList.remove('show'));
+    b.classList.add('active');
+    $(b.dataset.tab).classList.add('show');
+  };
+});
+
+/* ---------- 스프린트 ---------- */
+function startSprint(){
+  const t = $('topicInput').value.trim();
+  if(!t){ $('topicInput').focus(); return; }
+  state.sprint = { topic:t, date:today(), ideas:[] };
+  save(); renderSprint();
+}
+function addIdea(){
+  const v = $('ideaInput').value.trim();
+  if(!v || !state.sprint || state.sprint.ideas.length>=10) return;
+  state.sprint.ideas.push(v);
+  $('ideaInput').value='';
+
+  if(state.sprint.ideas.length===10){
+    // 파괴 구간(7~10) 자동으로 금고에 저장
+    state.sprint.ideas.slice(6).forEach(txt=>{
+      state.vault.push({ id:Date.now()+Math.random(), txt, topic:state.sprint.topic, date:today(), s:[0,0,0] });
+    });
+    // 스트릭 갱신
+    if(state.lastDay !== today()){
+      const y = new Date(); y.setDate(y.getDate()-1);
+      state.streak = (state.lastDay === y.toISOString().slice(0,10)) ? state.streak+1 : 1;
+      state.lastDay = today();
+    }
+  }
+  save(); renderSprint(); renderVault(); renderStreak();
+}
+$('ideaInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter') addIdea(); });
+$('topicInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter') startSprint(); });
+
+function resetSprint(){
+  state.sprint = null; save(); renderSprint();
+}
+function renderSprint(){
+  const sp = state.sprint;
+  $('topicArea').style.display = sp ? 'none':'block';
+  $('sprintArea').style.display = sp ? 'block':'none';
+  if(!sp) return;
+  $('topicLabel').textContent = sp.topic;
+  const n = sp.ideas.length;
+
+  $('rail').innerHTML = Array.from({length:10},(_,i)=>
+    `<div class="slot ${i>=6?'zone':''} ${i<n?'fill':''}"></div>`).join('');
+
+  $('ideaList').innerHTML = sp.ideas.map((t,i)=>
+    `<li class="${i>=6?'zone':''}"><span class="num">${i+1}</span><span>${esc(t)}</span></li>`).join('');
+
+  $('zoneBanner').style.display = (n>=6 && n<10) ? 'block':'none';
+  $('ideaInputRow').style.display = n<10 ? 'flex':'none';
+  $('doneBanner').style.display = n>=10 ? 'block':'none';
+  const nn = $('nextNum'); nn.textContent = n+1;
+  nn.className = 'num' + (n>=6?' zone':'');
+}
+
+/* ---------- 금고 ---------- */
+function renderVault(){
+  const list = $('vaultList');
+  if(!state.vault.length){
+    list.innerHTML = `<div class="empty"><b>금고가 비어 있습니다.</b><br>스프린트를 완주하면 파괴 구간(7–10번) 아이디어가 여기에 쌓입니다.</div>`;
+    return;
+  }
+  const crits = ['내가 고객','1주 테스트','AI 1/10'];
+  list.innerHTML = [...state.vault].reverse().map(it=>{
+    const total = it.s[0]+it.s[1]+it.s[2];
+    return `<div class="vault-item">
+      <div class="meta">${it.date} · ${esc(it.topic)}</div>
+      <div class="txt">${esc(it.txt)}</div>
+      <div class="score-row">
+        ${crits.map((c,ci)=>`<div class="crit"><span>${c}</span><div class="dots">
+          ${[1,2,3].map(v=>`<button class="dot ${it.s[ci]>=v?'on':''}" onclick="setScore(${it.id},${ci},${v})" aria-label="${c} ${v}점">${v}</button>`).join('')}
+        </div></div>`).join('')}
+        <span class="total ${total>=7?'hi':''}">${total}/9</span>
+      </div>
+      <div class="vault-actions">
+        ${total>=7?`<button class="primary" style="font-size:.8rem;padding:7px 14px" onclick="toBoard(${it.id})">검증 보내기</button>`:''}
+        <button class="ghost" onclick="delVault(${it.id})">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function setScore(id,ci,v){
+  const it = state.vault.find(x=>x.id===id); if(!it) return;
+  it.s[ci] = (it.s[ci]===v) ? v-1 : v;
+  save(); renderVault();
+}
+function delVault(id){
+  state.vault = state.vault.filter(x=>x.id!==id); save(); renderVault();
+}
+function toBoard(id){
+  pendingBoardIdea = state.vault.find(x=>x.id===id);
+  $('hypoText').value='';
+  $('hypoDialog').showModal();
+}
+function saveHypo(){
+  const h = $('hypoText').value.trim();
+  if(!h || !pendingBoardIdea) return;
+  state.board.push({ id:Date.now(), txt:pendingBoardIdea.txt, hyp:h, col:'hypo', win:false });
+  state.vault = state.vault.filter(x=>x.id!==pendingBoardIdea.id);
+  pendingBoardIdea = null;
+  $('hypoDialog').close();
+  save(); renderVault(); renderBoard();
+}
+
+/* ---------- 검증 보드 ---------- */
+function renderBoard(){
+  const cols = {hypo:[],test:[],done:[]};
+  state.board.forEach(c=>cols[c.col].push(c));
+  ['hypo','test','done'].forEach(k=>{
+    $('cnt-'+k).textContent = cols[k].length ? `(${cols[k].length})` : '';
+    $('col-'+k).innerHTML = cols[k].map(c=>`
+      <div class="card ${c.win?'win':''}">
+        <b>${esc(c.txt)}</b>
+        <div class="hyp">${esc(c.hyp)}</div>
+        <div class="move">
+          ${c.col==='hypo'?`<button class="primary" onclick="moveCard(${c.id},'test')">테스트 시작</button>`:''}
+          ${c.col==='test'?`<button class="primary" onclick="finishCard(${c.id},true)">통과</button><button class="ghost" onclick="finishCard(${c.id},false)">기각</button>`:''}
+          ${c.col==='done'?`<span style="font-size:.78rem;color:${c.win?'var(--ultra)':'var(--gray)'};font-weight:600">${c.win?'✓ 돈 낼 사람 있음 — 올인 후보':'✗ 기각 — 다음 아이디어로'}</span>`:''}
+          <button class="ghost" onclick="delCard(${c.id})">삭제</button>
+        </div>
+      </div>`).join('') || `<div class="empty" style="padding:24px 10px;font-size:.82rem">비어 있음</div>`;
+  });
+}
+function moveCard(id,col){ const c=state.board.find(x=>x.id===id); if(c){c.col=col; save(); renderBoard();} }
+function finishCard(id,win){ const c=state.board.find(x=>x.id===id); if(c){c.col='done'; c.win=win; save(); renderBoard();} }
+function delCard(id){ state.board=state.board.filter(x=>x.id!==id); save(); renderBoard(); }
+
+/* ---------- 공통 ---------- */
+function renderStreak(){ $('streakNum').textContent = state.streak; }
+function renderAll(){ renderSprint(); renderVault(); renderBoard(); renderStreak(); }
+load();
+</script>
+</body>
+</html>
