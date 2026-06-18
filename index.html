@@ -122,6 +122,39 @@ button.ghost:disabled{opacity:.4;cursor:wait}
 .hist-item ul li.zone{background:rgba(255,227,77,.18)}
 .backup-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 
+.badge-src{font-size:.7rem;font-weight:600;padding:2px 8px;border:1px solid var(--ink);white-space:nowrap}
+.badge-src.auto{background:var(--ultra);color:#fff;border-color:var(--ultra)}
+.badge-rec{font-size:.72rem;font-weight:600;padding:3px 9px;background:var(--marker);border:1px solid var(--ink);white-space:nowrap}
+.manual-row{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.manual-row input{flex:1;min-width:200px}
+.guide-wrap{margin-top:14px;border-top:1.5px dashed var(--line);padding-top:12px}
+.guide-progress{font-size:.78rem;color:var(--gray);margin-bottom:10px}
+.guide-progress b{color:var(--ultra)}
+.guide-step{border:1px solid var(--line);margin-bottom:6px}
+.guide-step summary{padding:9px 12px;cursor:pointer;list-style:none;display:flex;gap:10px;align-items:center;font-size:.88rem}
+.guide-step summary::-webkit-details-marker{display:none}
+.guide-step .chk{width:18px;height:18px;border:1.5px solid var(--ink);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:#fff}
+.guide-step.done summary .chk{background:var(--ultra);border-color:var(--ultra);color:#fff}
+.guide-step.done summary .stitle{text-decoration:line-through;color:var(--gray)}
+.guide-step .body{padding:0 12px 12px 40px}
+.guide-step .prompt{font-size:.78rem;color:var(--gray);margin-bottom:6px}
+.guide-step textarea{min-height:60px;font-size:.9rem}
+.guide-step .body button{margin-top:8px}
+
+#homeBanner{margin-bottom:24px}
+.home-card{border:2px solid var(--ink);background:#fff;padding:16px;box-shadow:4px 4px 0 var(--marker)}
+.home-card .htag{font-size:.72rem;font-weight:600;letter-spacing:.1em;color:var(--ultra);text-transform:uppercase;margin-bottom:6px}
+.home-card .hmain{font-size:1.05rem;font-weight:600;margin-bottom:4px}
+.home-card .hsub{font-size:.85rem;color:var(--gray)}
+.home-stats{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap}
+.home-stats span{font-size:.78rem;color:var(--gray)}
+.home-stats b{font-family:'Black Han Sans';color:var(--ink);font-size:1rem}
+.badge-elapsed{font-size:.7rem;font-weight:600;padding:2px 7px;border:1px solid var(--gray);color:var(--gray);white-space:nowrap}
+.badge-elapsed.warn{border-color:#C0392B;color:#C0392B;background:#FDEDEC}
+.vault-toolbar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.vault-toolbar input{flex:1;min-width:160px}
+.vault-toolbar button{font-size:.8rem;white-space:nowrap}
+
 dialog{border:2px solid var(--ink);background:var(--paper);padding:24px;max-width:480px;width:92%}
 dialog::backdrop{background:rgba(22,22,26,.45)}
 dialog h3{font-size:1.1rem;margin-bottom:12px}
@@ -151,12 +184,14 @@ footer{max-width:880px;margin:0 auto;padding:20px;font-size:.75rem;color:var(--g
   <button data-tab="vault">금고</button>
   <button data-tab="board">검증 보드</button>
   <button data-tab="history">히스토리</button>
+  <button data-tab="product">상품화</button>
 </nav>
 
 <main>
 
 <!-- ===== 스프린트 ===== -->
 <section id="sprint" class="show">
+  <div id="homeBanner"></div>
   <div class="sprint-head">
     <div class="eyebrow">Daily Sprint</div>
     <h2>불편함 하나를 잡고, <span class="hl">아이디어 10개</span>를 밀어붙이세요</h2>
@@ -209,6 +244,10 @@ footer{max-width:880px;margin:0 auto;padding:20px;font-size:.75rem;color:var(--g
     <h2>점수를 매기고, <span class="hl">7점 이상</span>만 검증으로 보냅니다</h2>
     <p style="font-size:.85rem;color:var(--gray);margin-top:8px">기준: ① 내가 직접 고객인가 ② 1주 안에 테스트 가능한가 ③ AI로 비용 1/10 가능한가 — 각 0~3점<br>「유사 사례 비교」를 누르면 AI가 웹에서 기존 유사 서비스를 찾아 차별점과 빈틈을 분석합니다.</p>
   </div>
+  <div class="vault-toolbar" id="vaultToolbar">
+    <input type="text" id="vaultSearch" placeholder="아이디어·주제 검색" oninput="onVaultSearch(this.value)">
+    <button class="ghost" id="vaultSortBtn" onclick="toggleVaultSort()">정렬: 최신순</button>
+  </div>
   <div id="vaultList"></div>
 </section>
 
@@ -242,7 +281,27 @@ footer{max-width:880px;margin:0 auto;padding:20px;font-size:.75rem;color:var(--g
     <button class="ghost" onclick="importFile.click()">⬆ 백업 불러오기</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
   </div>
+  <input type="text" id="histSearch" placeholder="주제 검색" style="margin-bottom:16px" oninput="onHistSearch(this.value)">
   <div id="histList"></div>
+</section>
+
+<!-- ===== 상품화 ===== -->
+<section id="product">
+  <div class="sprint-head">
+    <div class="eyebrow">Productization</div>
+    <h2>검증을 통과했다면, <span class="hl">상품</span>으로 만듭니다</h2>
+    <p style="font-size:.85rem;color:var(--gray);margin-top:8px">검증 보드에서 통과한 아이디어는 자동으로 들어옵니다. 주식트래커처럼 이미 만든 것은 직접 추가하세요.<br>4가지 기준(시장성·수익화·실현가능성·차별화) 12점 만점 중 8점 이상이면 착수를 추천합니다.</p>
+  </div>
+
+  <div class="manual-row" id="manualRow" style="display:none">
+    <input type="text" id="manualInput" placeholder="예: AI 주식트래커 — 학습용으로 만든 걸 상품화 검토" maxlength="120">
+    <button class="primary" onclick="addProductManual()">추가</button>
+  </div>
+  <div style="margin-bottom:20px" id="manualToggleWrap">
+    <button class="ghost" onclick="toggleManualRow()">+ 이미 만든 아이디어 직접 추가</button>
+  </div>
+
+  <div id="productList"></div>
 </section>
 
 </main>
@@ -274,11 +333,15 @@ footer{max-width:880px;margin:0 auto;padding:20px;font-size:.75rem;color:var(--g
 <!-- 설정 다이얼로그 -->
 <dialog id="settingsDialog">
   <h3>설정</h3>
-  <p class="small">Claude.ai 안에서 쓸 때는 비워 두면 됩니다. GitHub Pages 등 외부에서 AI 기능(⚡ 자극, 유사 사례 비교)을 쓰려면 Anthropic API 키를 입력하세요. 키는 이 브라우저에만 저장됩니다. 공용 PC에서는 입력하지 마세요.</p>
+  <p class="small">Claude.ai 안에서 쓸 때는 비워 두면 됩니다. GitHub Pages 등 외부에서 AI 기능(⚡ 자극, 🧠 전문가 평가, 🔍 비교/선조사)을 쓰려면 Anthropic API 키를 입력하세요. 키는 이 브라우저에만 저장됩니다. 공용 PC에서는 입력하지 마세요.</p>
   <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="margin:10px 0">
   <div class="row">
     <button class="ghost" onclick="settingsDialog.close()">닫기</button>
     <button class="primary" onclick="saveKey()">저장</button>
+  </div>
+  <div style="border-top:1.5px dashed var(--line);margin-top:16px;padding-top:14px">
+    <p class="small">지금 보이는 10개 샘플 아이디어와 주식트래커 예시는 사용법을 보여주는 데모 데이터입니다. 본인 데이터로만 새로 시작하려면 아래를 누르세요.</p>
+    <button class="ghost" onclick="resetToEmpty()" style="margin-top:8px">🗑 샘플 데이터 지우고 빈 상태로 시작</button>
   </div>
 </dialog>
 
@@ -295,11 +358,13 @@ const store = {
   }
 };
 
-let state = { streak:0, lastDay:null, sprint:null, vault:[], board:[], history:[], apiKey:'' };
+let state = { streak:0, lastDay:null, sprint:null, vault:[], board:[], history:[], product:[], apiKey:'' };
 let pendingBoardIdea = null, pendingRejectId = null;
+let vaultSort = 'recent', vaultQuery = '', histQuery = '';
 
 const $ = id => document.getElementById(id);
 const today = () => new Date().toISOString().slice(0,10);
+const daysSince = (dateStr) => Math.max(0, Math.floor((Date.now() - new Date(dateStr+'T00:00:00').getTime())/86400000));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const QUESTIONS = [
@@ -316,6 +381,98 @@ const QUESTIONS = [
   "관리비 고지서에서 이해 안 되는 항목은?",
   "내가 지금도 종이로 하고 있는 일은?"
 ];
+
+const GUIDE_STEPS = [
+  {title:"MVP 핵심 기능 정의", prompt:"딱 1개 핵심 기능만 적어보세요. 나머지는 다음 버전으로 미루세요."},
+  {title:"가격 책정", prompt:"얼마를 받을까요? 무료 대안과 비교해 가격을 정당화하는 한 줄을 적어보세요."},
+  {title:"첫 고객 10명 확보 계획", prompt:"누구에게, 어떤 채널로 처음 알릴지 적어보세요. (지인/커뮤니티/블로그/SNS 등)"},
+  {title:"결제 &amp; 배포 방법", prompt:"결제는 어떻게 받을까요? (카카오페이 송금, 토스페이먼츠, 앱스토어 등) 배포 채널도 함께 적어보세요."},
+  {title:"사업자 등록 시점 체크", prompt:"매출이 발생하면 사업자 등록이 필요해집니다. 현재 상태와 다음 행동을 적어보세요."},
+  {title:"특허·상표 보호 검토", prompt:"브랜드명·서비스명은 키프리스(kipris.or.kr)에서 동일·유사 상표를 먼저 검색하세요. 기술적 차별점이 있다면 특허 출원 전에는 외부에 공개하지 마세요(공개 후엔 신규성 상실로 출원이 막힐 수 있음). 아래 AI 선조사는 참고용이며, 법적 확인은 키프리스 직접 검색 또는 변리사 상담으로 반드시 재확인하세요."}
+];
+
+/* ========== 데모 시드 데이터: 10개 시뮬레이션 아이디어 + 주식트래커 샘플 ========== */
+const dAgo = (n) => { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); };
+const TOPICS = [
+  {topic:'신입 판매직원이 매장 업무를 익히는 데 너무 오래 걸린다', ideas:[
+    '선배 1:1 멘토링 강화','체크리스트 인쇄물 배포','동영상 매뉴얼 제작','주간 퀴즈로 점검','신입 전용 단체 채팅방 운영','업무 매뉴얼 PDF로 정리',
+    'AI 챗봇이 24시간 신입 질문에 즉답','매장 CCTV 영상에서 베스트 응대 장면을 자동으로 클립화해 학습자료로 사용','신입끼리 서로 가르치는 역멘토링 게임화(포인트제)','고객 응대를 녹음해 AI가 자동으로 피드백 점수화'
+  ]},
+  {topic:'관리비 고지서를 입주민들이 이해하지 못해 민원이 반복된다', ideas:[
+    '고지서에 설명 문구 추가','별도 안내문 배포','관리사무소 방문 상담 시간 확대','입주자대표회의에서 직접 설명','단체 채팅방에 FAQ 게시','고지서 항목별 색상 구분',
+    '고지서 사진 찍으면 AI가 항목별로 설명해주는 챗봇','관리비를 0원처럼 보이게 — 실제 사용량만 큰 글씨로, 나머지는 접어서','매달 모든 세대에 1분짜리 음성 안내 자동 발송','관리비 변동 이유를 전월 대비 그래프로 자동 생성해 발송'
+  ]},
+  {topic:'전기기타 초보자는 며칠 연습하다 포기한다', ideas:[
+    '연습 알림 푸시 설정','진도 체크리스트 작성','유튜브 추천 영상 모음','코드표 인쇄해 벽에 붙이기','동기부여 문구 표시','연습 일지 작성',
+    '하루라도 연습을 안 하면 친구에게 자동으로 카톡 발송','연습 영상을 찍으면 AI가 코드 잡는 손가락 위치를 교정해준다','연습 30일을 완주하면 보증금이 환급되는 챌린지형 결제','좋아하는 노래 한 곡만 먼저 완성하는 역순 커리큘럼'
+  ]},
+  {topic:'강의 PPT를 매번 처음부터 만드느라 시간이 너무 걸린다', ideas:[
+    '기존 템플릿 재사용','디자인 가이드 문서화','외주 디자이너 활용','공통 슬라이드 라이브러리 구축','Canva 템플릿 구매','팀원과 슬라이드 분담 제작',
+    '강의 주제만 던지면 AI가 전체 PPT 초안을 자동 생성','과거 강의 100개를 학습해 내 스타일 그대로 만드는 AI','PPT 없이 AI가 실시간으로 화면에 핵심만 띄워주는 방식','만든 PPT를 다른 강사들에게 판매하는 마켓플레이스'
+  ]},
+  {topic:'주식 매매 후 왜 그렇게 판단했는지 기록이 안 남아 같은 실수를 반복한다', ideas:[
+    '메모장에 기록','엑셀로 정리','캡처해서 모아두기','일기장에 손글씨로 기록','증권사 자동일지 기능 사용','매주 복기 시간을 따로 정하기',
+    '매수 버튼을 누르는 순간 이유를 강제로 입력해야 진행되는 잠금 기능','AI가 과거 패턴을 보고 "또 그 실수입니다"라고 경고','손실 난 매매만 모아 자동으로 반성문을 생성','같은 종목을 재검색할 때 과거 기록을 자동으로 이어붙이는 사이클 관리'
+  ]},
+  {topic:'아파트 공사 현장설명서를 관리소가 안 줘서 입주민이 검증할 방법이 없다', ideas:[
+    '공문으로 요청','입주자대표회의에서 의결','변호사 자문','타 아파트 사례 조사','관리감독 기관에 문의','게시판에 공개 요구문 게시',
+    '동대표가 공사 현장을 매일 사진으로 기록해 공개 아카이브 구축','미지급 공사비를 협상 레버리지로 활용해 서류 제출을 조건화','입주민 전체 서명을 받는 온라인 서명 폼 제작','비슷한 처지의 다른 아파트 동대표들과 정보 공유 네트워크 구성'
+  ]},
+  {topic:'우수매장 사례를 모아도 다른 매장이 읽지 않는다', ideas:[
+    'PDF로 정리해 배포','단체 채팅방에 공유','월례 회의에서 발표','포스터로 출력해 게시','우수사례 시상식 개최','담당자에게 1:1로 전달',
+    '우수사례를 1분짜리 쇼츠 영상으로 자동 변환','매장끼리 경쟁하는 랭킹보드 게임화','AI가 매장 데이터를 보고 "이 매장에 맞는 사례"만 추천','우수사례를 따라한 매장에 포인트를 지급하는 리워드 제도'
+  ]},
+  {topic:'블로그 글을 써도 검색 노출이 안 된다', ideas:[
+    '키워드를 더 찾아보기','글 길이를 늘리기','이미지 추가','발행 시간을 바꿔보기','다른 블로그 벤치마킹','SEO 강의 수강',
+    'AI가 실시간 검색 트렌드를 보고 키워드를 자동 추천','한 주제를 10개의 변형 제목으로 동시에 발행해 A/B 테스트','댓글에 달린 질문을 모아 다음 글 주제로 자동 변환','글을 쓰기 전에 AI가 "이 제목이면 몇 명이 클릭할지" 예측 점수를 부여'
+  ]},
+  {topic:'장기수선충당금 계산이 복잡해서 입주민들이 신뢰하지 않는다', ideas:[
+    '계산 근거를 문서화','회계사 검토 요청','설명회 개최','엑셀 계산식 공개','타 아파트 비교 자료 제공','관리소장과 면담',
+    '세대별 충당금을 입력하면 자동으로 적정성을 검증해주는 계산기','충당금 사용 내역을 실시간 대시보드로 공개','충당금 부족분을 시뮬레이션으로 미리 보여주는 예측 도구','다른 아파트들과 충당금 적립률을 비교하는 익명 벤치마크'
+  ]},
+  {topic:'AI 활용 교육을 들어도 며칠 지나면 다 까먹는다', ideas:[
+    '요약 자료 배포','복습 퀴즈 제공','실습 과제 부여','후속 모임 개최','1:1 코칭 제공','수료증 발급으로 동기부여',
+    '교육이 끝난 뒤 매일 1개씩 마이크로 복습 알림 발송','배운 프롬프트를 실제 업무에 적용했는지 인증샷 챌린지','수강생들이 서로 써본 프롬프트를 공유하는 커뮤니티 자동 개설','교육 내용을 AI 챗봇으로 만들어 언제든 질문하면 답해주는 방식'
+  ]}
+];
+function buildSeedData(){
+  const history = TOPICS.map((t,i)=>({ date: dAgo(9-i), topic:t.topic, ideas:t.ideas }));
+  const vault = [
+    { id:1001, txt:TOPICS[1].ideas[6], topic:TOPICS[1].topic, date:dAgo(8), s:[3,1,2], compare:null, expert:null },
+    { id:1002, txt:TOPICS[2].ideas[7], topic:TOPICS[2].topic, date:dAgo(7), s:[3,1,1], compare:null, expert:null },
+    { id:1003, txt:TOPICS[6].ideas[6], topic:TOPICS[6].topic, date:dAgo(3), s:[2,2,3], compare:null, expert:null }
+  ];
+  const board = [
+    { id:2001, txt:TOPICS[0].ideas[6], hyp:'매장 점장은 신입 온보딩 시간을 줄여주는 AI 챗봇에 월 2만원을 낼 것이다', col:'test', win:false, reason:'', date:dAgo(9), testDate:dAgo(5), movedToProduct:false },
+    { id:2002, txt:TOPICS[8].ideas[6], hyp:'동대표는 충당금 검증 계산기 1회 이용에 5만원을 낼 것이다', col:'test', win:false, reason:'', date:dAgo(12), testDate:dAgo(9), movedToProduct:false },
+    { id:2003, txt:TOPICS[7].ideas[6], hyp:'블로그 운영자는 키워드 추천 도구에 월 9,900원을 낼 것이다', col:'hypo', win:false, reason:'', date:dAgo(2), testDate:null, movedToProduct:false },
+    { id:2004, txt:TOPICS[9].ideas[6], hyp:'교육 수료생은 복습 알림 서비스에 월 4,900원을 낼 것이다', col:'hypo', win:false, reason:'', date:dAgo(1), testDate:null, movedToProduct:false },
+    { id:2005, txt:TOPICS[3].ideas[6], hyp:'강사는 PPT 자동생성 도구에 월 1만원을 낼 것이다', col:'done', win:true, reason:'', date:dAgo(14), testDate:dAgo(11), movedToProduct:false },
+    { id:2006, txt:TOPICS[5].ideas[6], hyp:'입주민은 공사 현장 아카이브 열람에 비용을 낼 것이다', col:'done', win:false, reason:'입주민 절반이 사진 찍는 걸 부담스러워해서 참여율이 낮았음', date:dAgo(15), testDate:dAgo(12), movedToProduct:false },
+    { id:2007, txt:TOPICS[4].ideas[9], hyp:'구체적인 구독 의향이 있는 사람은 월 4,900원을 낼 것이다', col:'done', win:true, reason:'', date:dAgo(18), testDate:dAgo(14), movedToProduct:true }
+  ];
+  const product = [
+    { id:3001, txt:'AI 주식트래커 — 학습용으로 만든 사이클 기반 매매기록 도구', hyp:'구체적인 구독 의향이 있는 사람은 월 4,900원을 낼 것이다', source:'auto', date:dAgo(3),
+      scores:[1,1,3,2],
+      guide:[
+        {done:true, note:'사이클 자동 연결 + AI 매매 판단 코칭 한 줄로 좁히기'},
+        {done:true, note:'기록 기능은 무료, AI 코칭만 월 3,900~4,900원 (추정, 확인 필요)'},
+        {done:false, note:'PS&M 교육 채널 인맥, 생각콩 블로그 독자, 주식 커뮤니티'},
+        {done:false, note:'베타는 카카오페이 송금, 검증되면 토스페이먼츠 연동'},
+        {done:false, note:'매출 발생 전까지 불필요, 유료 전환 시점에 검토'},
+        {done:false, note:''}
+      ],
+      expert:[
+        {persona:'시장분석 전문가', score:1, reason:'존버노트·Trady·살래말래 등 무료 매매일지 앱과 증권사 자동일지 기능이 이미 다수 존재해 기본 기록 기능은 레드오션'},
+        {persona:'투자자(VC)', score:1, reason:'현재 무료·단일 사용자용이며 수익모델이 미정, 비교 앱들도 대부분 무료라 지불 의사를 끌어낼 명분이 약함'},
+        {persona:'기술/PM 전문가', score:3, reason:'이미 완성돼 라이브 배포까지 끝났고 KRX 2,756개 종목 데이터를 내장한 단일 파일 구조로 1인 운영 가능성이 증명됨'},
+        {persona:'특허·IP 전문가', score:2, reason:'사이클 자동연결은 일반적 UX 패턴이라 특허성은 낮지만 "생각콩" 브랜드명은 직접 충돌이 발견되지 않아 상표 출원 시도는 가능'}
+      ],
+      ipCheck:'[검색 결과] "생각콩" 명칭의 동일 상표·서비스는 일반 웹검색에서 발견되지 않음 (2026.06 기준)\n[주의사항] 일반 웹검색은 정식 상표 데이터베이스가 아니므로 참고용입니다\n[다음 행동] 키프리스(kipris.or.kr)에서 직접 재확인 권장, 출원 전 변리사 상담 권장'
+    }
+  ];
+  return { streak:10, lastDay: dAgo(0), sprint:null, vault, board, history, product, apiKey:'' };
+}
 
 /* ========== Claude API (Claude 아티팩트: 키 불필요 / 외부: 본인 키) ========== */
 async function askClaude(prompt, useSearch){
@@ -340,11 +497,57 @@ async function askClaude(prompt, useSearch){
 async function load(){
   const saved = await store.get('lab-state');
   if(saved) state = Object.assign(state, saved);
+  else state = buildSeedData();
   $('apiKeyInput').value = state.apiKey || '';
   rollSuggest();
   renderAll();
 }
-function save(){ store.set('lab-state', state); }
+function resetToEmpty(){
+  if(!confirm('샘플 데이터(10개 시뮬레이션 + 주식트래커)를 모두 지우고 빈 상태로 시작합니다. 되돌릴 수 없습니다. 계속할까요?')) return;
+  const keptKey = state.apiKey;
+  state = { streak:0, lastDay:null, sprint:null, vault:[], board:[], history:[], product:[], apiKey:keptKey };
+  save(); renderAll(); settingsDialog.close();
+}
+function save(){ store.set('lab-state', state); renderHomeBanner(); }
+function renderHomeBanner(){
+  const banner = $('homeBanner'); if(!banner) return;
+  const testCards = state.board.filter(c=>c.col==='test' && c.testDate);
+  let stalled = null;
+  testCards.forEach(c=>{ const d=daysSince(c.testDate); if(d>=7 && (!stalled || d>daysSince(stalled.testDate))) stalled=c; });
+  const ready = state.vault.filter(it=> (it.s[0]+it.s[1]+it.s[2])>=7);
+  const doneToday = state.lastDay === today();
+
+  let htag, hmain, hsub;
+  if(stalled){
+    htag = '오늘의 추천 행동';
+    hmain = `"${stalled.txt}" 테스트가 ${daysSince(stalled.testDate)}일째 멈춰 있습니다`;
+    hsub = '검증 보드에서 통과·기각을 결정하세요. 결론 없이 오래 두면 다음 아이디어로 넘어가기 어려워집니다.';
+  } else if(ready.length){
+    htag = '오늘의 추천 행동';
+    hmain = `금고에 7점 이상 미처리 아이디어 ${ready.length}개가 있습니다`;
+    hsub = '금고 탭에서 "검증 보내기"를 눌러 가설을 세워보세요.';
+  } else if(!doneToday){
+    htag = '오늘의 추천 행동';
+    hmain = '오늘은 아직 스프린트를 시작하지 않았습니다';
+    hsub = '아래에서 불편함 하나를 골라 10개를 채워보세요.';
+  } else {
+    htag = '오늘 완주했습니다';
+    hmain = '내일 또 새 스프린트로 만나요';
+    hsub = `누적 ${state.history.length}개 스프린트 · 연속 ${state.streak}일`;
+  }
+
+  banner.innerHTML = `<div class="home-card">
+    <div class="htag">${htag}</div>
+    <div class="hmain">${esc(hmain)}</div>
+    <div class="hsub">${esc(hsub)}</div>
+    <div class="home-stats">
+      <span>연속 <b>${state.streak}</b>일</span>
+      <span>완주 <b>${state.history.length}</b>건</span>
+      <span>검증통과 <b>${state.board.filter(c=>c.win).length}</b>건</span>
+      <span>상품화 진행 <b>${state.product.length}</b>건</span>
+    </div>
+  </div>`;
+}
 function saveKey(){ state.apiKey = $('apiKeyInput').value.trim(); save(); settingsDialog.close(); }
 
 /* ---------- 탭 ---------- */
@@ -377,7 +580,7 @@ function addIdea(){
 
   if(state.sprint.ideas.length===10){
     state.sprint.ideas.slice(6).forEach(txt=>{
-      state.vault.push({ id:Math.round(Date.now()+Math.random()*1000), txt, topic:state.sprint.topic, date:today(), s:[0,0,0], compare:null });
+      state.vault.push({ id:Math.round(Date.now()+Math.random()*1000), txt, topic:state.sprint.topic, date:today(), s:[0,0,0], compare:null, expert:null });
     });
     state.history.push({ date:today(), topic:state.sprint.topic, ideas:[...state.sprint.ideas] });
     if(state.lastDay !== today()){
@@ -443,6 +646,12 @@ async function getProvocations(){
 }
 
 /* ---------- 금고 ---------- */
+function onVaultSearch(v){ vaultQuery = v.trim().toLowerCase(); renderVault(); }
+function toggleVaultSort(){
+  vaultSort = (vaultSort==='recent') ? 'score' : 'recent';
+  $('vaultSortBtn').textContent = '정렬: ' + (vaultSort==='recent' ? '최신순' : '점수높은순');
+  renderVault();
+}
 function renderVault(){
   const list = $('vaultList');
   if(!state.vault.length){
@@ -450,7 +659,15 @@ function renderVault(){
     return;
   }
   const crits = ['내가 고객','1주 테스트','AI 1/10'];
-  list.innerHTML = [...state.vault].reverse().map(it=>{
+  let items = [...state.vault];
+  if(vaultQuery) items = items.filter(it => it.txt.toLowerCase().includes(vaultQuery) || it.topic.toLowerCase().includes(vaultQuery));
+  if(vaultSort==='score') items.sort((a,b)=> (b.s[0]+b.s[1]+b.s[2]) - (a.s[0]+a.s[1]+a.s[2]));
+  else items.reverse();
+  if(!items.length){
+    list.innerHTML = `<div class="empty">검색 결과가 없습니다.</div>`;
+    return;
+  }
+  list.innerHTML = items.map(it=>{
     const total = it.s[0]+it.s[1]+it.s[2];
     return `<div class="vault-item">
       <div class="meta">${it.date} · ${esc(it.topic)}</div>
@@ -463,9 +680,13 @@ function renderVault(){
       </div>
       <div class="vault-actions">
         ${total>=7?`<button class="primary" style="font-size:.8rem;padding:7px 14px" onclick="toBoard(${it.id})">검증 보내기</button>`:''}
+        <button class="ghost" id="exp-${it.id}" onclick="expertScoreVault(${it.id})">🧠 전문가 평가</button>
         <button class="ghost" id="cmp-${it.id}" onclick="compareIdea(${it.id})">🔍 유사 사례 비교</button>
         <button class="ghost" onclick="delVault(${it.id})">삭제</button>
       </div>
+      ${it.expert?`<div class="ai-box" style="margin-top:12px"><div class="ai-tag">${it.expert[0].score!==null?'AI 전문가 평가 — 점수는 자동 반영되었습니다, 클릭해서 직접 조정 가능':'AI 연결 안 됨 — 아래 질문에 직접 답하며 점수를 매겨보세요'}</div>
+        ${it.expert.map(e=>`<div class="prov"><span class="ptype">${esc(e.persona)}${e.score!==null?' '+e.score+'/3':''}</span><span>${esc(e.reason)}</span></div>`).join('')}
+      </div>`:''}
       ${it.compare?`<div class="compare-box"><div class="ai-tag">AI 유사 사례 분석</div>${esc(it.compare)}</div>`:''}
     </div>`;
   }).join('');
@@ -497,6 +718,37 @@ async function compareIdea(id){
   save(); renderVault();
 }
 
+async function expertScoreVault(id){
+  const it = state.vault.find(x=>x.id===id); if(!it) return;
+  const btn = $('exp-'+id);
+  if(btn){ btn.disabled = true; btn.textContent = '🧠 평가 중...'; }
+  const prompt = `다음 아이디어를 3명의 서로 다른 전문가 관점에서 0~3점으로 평가해 주세요.
+아이디어: "${it.txt}"
+배경 불편함: "${it.topic}"
+
+반드시 이 순서와 기준을 그대로 따르세요:
+1. 사용자 리서치 전문가 — 기준: 작성자 본인이 실제 타겟 고객에 해당하고, 비슷한 고객층이 충분히 존재하는가
+2. 린스타트업 실행 코치 — 기준: 1주 안에 최소 형태(인터뷰, 랜딩페이지 등)로 테스트 가능한가
+3. AI·기술 효율화 전문가 — 기준: AI를 활용해 기존 방식보다 비용/시간을 1/10 수준으로 줄일 수 있는가
+
+각 전문가는 0~3점 점수와 1줄 근거를 답니다. JSON만 출력하세요(마크다운 백틱·다른 텍스트 금지):
+{"scores":[{"persona":"사용자 리서치 전문가","score":0,"reason":"..."},{"persona":"린스타트업 실행 코치","score":0,"reason":"..."},{"persona":"AI·기술 효율화 전문가","score":0,"reason":"..."}]}`;
+  try{
+    const raw = await askClaude(prompt, false);
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    it.expert = parsed.scores;
+    parsed.scores.forEach((s,i)=>{ if(it.s[i]!==undefined) it.s[i] = Math.max(0,Math.min(3,Math.round(s.score))); });
+  }catch(e){
+    it.expert = [
+      {persona:'사용자 리서치 관점', score:null, reason:'나는 이 문제를 가진 사람인가? 비슷한 사람이 몇 명이나 있을까?'},
+      {persona:'린스타트업 관점', score:null, reason:'1주 안에 무엇으로 가장 빠르게 테스트할 수 있을까?'},
+      {persona:'AI 효율화 관점', score:null, reason:'AI로 어떤 반복 작업을 줄일 수 있을까?'}
+    ];
+  }
+  save(); renderVault();
+}
+
 function toBoard(id){
   pendingBoardIdea = state.vault.find(x=>x.id===id);
   $('hypoText').value='';
@@ -505,7 +757,7 @@ function toBoard(id){
 function saveHypo(){
   const h = $('hypoText').value.trim();
   if(!h || !pendingBoardIdea) return;
-  state.board.push({ id:Date.now(), txt:pendingBoardIdea.txt, hyp:h, col:'hypo', win:false, reason:'' });
+  state.board.push({ id:Date.now(), txt:pendingBoardIdea.txt, hyp:h, col:'hypo', win:false, reason:'', date:today(), testDate:null });
   state.vault = state.vault.filter(x=>x.id!==pendingBoardIdea.id);
   pendingBoardIdea = null;
   hypoDialog.close();
@@ -518,22 +770,28 @@ function renderBoard(){
   state.board.forEach(c=>cols[c.col].push(c));
   ['hypo','test','done'].forEach(k=>{
     $('cnt-'+k).textContent = cols[k].length ? `(${cols[k].length})` : '';
-    $('col-'+k).innerHTML = cols[k].map(c=>`
+    $('col-'+k).innerHTML = cols[k].map(c=>{
+      const elapsed = (c.col==='test' && c.testDate) ? daysSince(c.testDate) : null;
+      return `
       <div class="card ${c.win?'win':''}">
         <b>${esc(c.txt)}</b>
+        ${elapsed!==null?`<span class="badge-elapsed ${elapsed>=7?'warn':''}" style="float:right">테스트 D+${elapsed}</span>`:''}
         <div class="hyp">${esc(c.hyp)}</div>
         ${c.reason?`<div class="reason">배운 점: ${esc(c.reason)}</div>`:''}
         <div class="move">
           ${c.col==='hypo'?`<button class="primary" onclick="moveCard(${c.id},'test')">테스트 시작</button>`:''}
           ${c.col==='test'?`<button class="primary" onclick="finishCard(${c.id},true)">통과</button><button class="ghost" onclick="openReject(${c.id})">기각</button>`:''}
           ${c.col==='done'?`<span style="font-size:.78rem;color:${c.win?'var(--ultra)':'var(--gray)'};font-weight:600">${c.win?'✓ 돈 낼 사람 있음 — 올인 후보':'✗ 기각'}</span>`:''}
+          ${c.col==='done' && c.win && !c.movedToProduct?`<button class="primary" style="font-size:.75rem;padding:5px 10px" onclick="sendToProduct(${c.id})">🚀 상품화 트랙으로</button>`:''}
+          ${c.movedToProduct?`<span style="font-size:.75rem;color:var(--gray)">→ 상품화 탭에서 진행 중</span>`:''}
           <button class="ghost" onclick="delCard(${c.id})">삭제</button>
         </div>
-      </div>`).join('') || `<div class="empty" style="padding:24px 10px;font-size:.82rem">비어 있음</div>`;
+      </div>`;
+    }).join('') || `<div class="empty" style="padding:24px 10px;font-size:.82rem">비어 있음</div>`;
   });
   renderHistory();
 }
-function moveCard(id,col){ const c=state.board.find(x=>x.id===id); if(c){c.col=col; save(); renderBoard();} }
+function moveCard(id,col){ const c=state.board.find(x=>x.id===id); if(c){c.col=col; if(col==='test' && !c.testDate) c.testDate=today(); save(); renderBoard();} }
 function finishCard(id,win){ const c=state.board.find(x=>x.id===id); if(c){c.col='done'; c.win=win; save(); renderBoard();} }
 function openReject(id){ pendingRejectId=id; $('rejectText').value=''; rejectDialog.showModal(); }
 function confirmReject(){
@@ -543,7 +801,150 @@ function confirmReject(){
 }
 function delCard(id){ state.board=state.board.filter(x=>x.id!==id); save(); renderBoard(); }
 
+/* ---------- 상품화 트랙 ---------- */
+function sendToProduct(boardId){
+  const c = state.board.find(x=>x.id===boardId); if(!c) return;
+  c.movedToProduct = true;
+  state.product.push({
+    id:Date.now(), txt:c.txt, hyp:c.hyp, source:'auto', date:today(),
+    scores:[0,0,0,0], guide: GUIDE_STEPS.map(()=>({done:false,note:''})), expert:null, ipCheck:null
+  });
+  save(); renderBoard(); renderProduct();
+}
+function toggleManualRow(){
+  const r = $('manualRow');
+  r.style.display = (r.style.display==='none') ? 'flex' : 'none';
+  if(r.style.display==='flex') $('manualInput').focus();
+}
+function addProductManual(){
+  const v = $('manualInput').value.trim();
+  if(!v) return;
+  state.product.push({
+    id:Date.now(), txt:v, hyp:'', source:'manual', date:today(),
+    scores:[0,0,0,0], guide: GUIDE_STEPS.map(()=>({done:false,note:''})), expert:null, ipCheck:null
+  });
+  $('manualInput').value=''; $('manualRow').style.display='none';
+  save(); renderProduct();
+}
+function delProduct(id){ state.product = state.product.filter(x=>x.id!==id); save(); renderProduct(); }
+function setProdScore(id,ci,v){
+  const it = state.product.find(x=>x.id===id); if(!it) return;
+  it.scores[ci] = (it.scores[ci]===v) ? v-1 : v;
+  save(); renderProduct();
+}
+async function expertScoreProduct(id){
+  const it = state.product.find(x=>x.id===id); if(!it) return;
+  const btn = $('pexp-'+id);
+  if(btn){ btn.disabled = true; btn.textContent = '🧠 평가 중...'; }
+  const prompt = `다음 사업 아이템을 4명의 서로 다른 전문가 관점에서 0~3점으로 평가해 주세요.
+아이템: "${it.txt}"
+${it.hyp?`검증 가설: "${it.hyp}"`:''}
+
+반드시 이 순서와 기준을 그대로 따르세요:
+1. 시장분석 전문가 — 기준(시장성): 유사 서비스 존재 여부와 실제 수요 규모
+2. 투자자(VC) — 기준(수익화): 지불 의사가 명확한 수익 모델이 있는가
+3. 기술/PM 전문가 — 기준(실현가능성): 1인 또는 소규모로 구현 가능한 기술 난이도
+4. 특허·IP 전문가 — 기준(차별화): 차별점이 특허·상표 등으로 법적 보호가 가능한 수준인가
+
+각 전문가는 0~3점 점수와 1줄 근거를 답니다. JSON만 출력하세요(마크다운 백틱·다른 텍스트 금지):
+{"scores":[{"persona":"시장분석 전문가","score":0,"reason":"..."},{"persona":"투자자(VC)","score":0,"reason":"..."},{"persona":"기술/PM 전문가","score":0,"reason":"..."},{"persona":"특허·IP 전문가","score":0,"reason":"..."}]}`;
+  try{
+    const raw = await askClaude(prompt, false);
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    it.expert = parsed.scores;
+    parsed.scores.forEach((s,i)=>{ if(it.scores[i]!==undefined) it.scores[i] = Math.max(0,Math.min(3,Math.round(s.score))); });
+  }catch(e){
+    it.expert = [
+      {persona:'시장분석 관점', score:null, reason:'이미 비슷한 서비스가 있는가? 있다면 무엇이 부족한가?'},
+      {persona:'투자자(VC) 관점', score:null, reason:'누가, 왜 돈을 낼까? 무료 대안보다 나은 이유는?'},
+      {persona:'기술/PM 관점', score:null, reason:'혼자서, 1주~1개월 안에 만들 수 있는 범위는 어디까지인가?'},
+      {persona:'특허·IP 관점', score:null, reason:'이 차별점은 따라하기 쉬운가, 어려운가? 브랜드명은 보호할 가치가 있는가?'}
+    ];
+  }
+  save(); renderProduct();
+}
+async function checkIP(id){
+  const it = state.product.find(x=>x.id===id); if(!it) return;
+  const btn = $('ip-'+id);
+  if(btn){ btn.disabled = true; btn.textContent = '🔍 조사 중...'; }
+  const prompt = `웹 검색을 활용해 다음 아이템의 이름·핵심 표현과 동일하거나 매우 유사한 상표·서비스명·특허가 한국에 이미 존재하는지 조사해 주세요.
+아이템: "${it.txt}"
+
+다음 형식으로 한국어로 간결하게(300자 이내) 답하세요:
+[검색 결과] 동일·유사한 이름이 발견되면 이름과 출처, 없으면 "검색된 자료에서는 발견되지 않음"
+[주의사항] 출원 전 주의할 점 1줄
+[다음 행동] 키프리스(kipris.or.kr)에서 직접 재확인 권장 문구 포함, 필요시 변리사 상담 권장`;
+  try{
+    it.ipCheck = await askClaude(prompt, true);
+  }catch(e){
+    it.ipCheck = "AI 연결 실패 — 외부(GitHub Pages)에서 사용 중이라면 ⚙에서 API 키를 확인하세요. ("+e.message+")";
+  }
+  save(); renderProduct();
+}
+function toggleGuideStep(id, idx){
+  const it = state.product.find(x=>x.id===id); if(!it) return;
+  it.guide[idx].done = !it.guide[idx].done;
+  save(); renderProduct();
+}
+function updateGuideNote(id, idx, val){
+  const it = state.product.find(x=>x.id===id); if(!it) return;
+  it.guide[idx].note = val;
+  save();
+}
+function renderProduct(){
+  const list = $('productList');
+  if(!state.product.length){
+    list.innerHTML = `<div class="empty"><b>아직 상품화 후보가 없습니다.</b><br>검증 보드에서 통과한 아이디어가 자동으로 들어오거나, 위 버튼으로 직접 추가하세요.</div>`;
+    return;
+  }
+  const crits = ['시장성','수익화','실현가능성','차별화'];
+  list.innerHTML = [...state.product].reverse().map(it=>{
+    const total = it.scores.reduce((a,b)=>a+b,0);
+    const doneN = it.guide.filter(g=>g.done).length;
+    return `<div class="vault-item">
+      <div class="meta">${it.date} · <span class="badge-src ${it.source==='auto'?'auto':''}">${it.source==='auto'?'검증통과 자동전송':'직접 추가'}</span></div>
+      <div class="txt">${esc(it.txt)}</div>
+      ${it.hyp?`<div style="font-size:.82rem;color:var(--gray);margin-bottom:10px">가설: ${esc(it.hyp)}</div>`:''}
+      <div class="score-row">
+        ${crits.map((c,ci)=>`<div class="crit"><span>${c}</span><div class="dots">
+          ${[1,2,3].map(v=>`<button class="dot ${it.scores[ci]>=v?'on':''}" onclick="setProdScore(${it.id},${ci},${v})" aria-label="${c} ${v}점">${v}</button>`).join('')}
+        </div></div>`).join('')}
+        <span class="total ${total>=8?'hi':''}">${total}/12</span>
+        ${total>=8?'<span class="badge-rec">착수 추천</span>':''}
+      </div>
+      ${it.expert?`<div class="ai-box" style="margin-top:12px"><div class="ai-tag">${it.expert[0].score!==null?'AI 전문가 평가 — 점수는 자동 반영되었습니다, 클릭해서 직접 조정 가능':'AI 연결 안 됨 — 아래 질문에 직접 답하며 점수를 매겨보세요'}</div>
+        ${it.expert.map(e=>`<div class="prov"><span class="ptype">${esc(e.persona)}${e.score!==null?' '+e.score+'/3':''}</span><span>${esc(e.reason)}</span></div>`).join('')}
+      </div>`:''}
+      <div class="vault-actions" style="margin-top:12px">
+        <button class="ghost" id="pexp-${it.id}" onclick="expertScoreProduct(${it.id})">🧠 전문가 평가</button>
+      </div>
+      <div class="guide-wrap">
+        <div class="guide-progress">상품화 가이드 진행 <b>${doneN}/${GUIDE_STEPS.length}</b></div>
+        ${GUIDE_STEPS.map((s,idx)=>{
+          const g = it.guide[idx];
+          const isIP = (idx === GUIDE_STEPS.length-1);
+          return `<details class="guide-step ${g.done?'done':''}">
+            <summary><span class="chk">${g.done?'✓':''}</span><span class="stitle">${idx+1}. ${s.title}</span></summary>
+            <div class="body">
+              <div class="prompt">${s.prompt}</div>
+              ${isIP?`<button class="ghost" id="ip-${it.id}" onclick="checkIP(${it.id})">🔍 AI 동일·유사 상표 선조사</button>
+              ${it.ipCheck?`<div class="compare-box" style="margin-top:10px"><div class="ai-tag">AI 선조사 결과 (참고용)</div>${esc(it.ipCheck)}</div>`:''}`:''}
+              <textarea placeholder="메모" onblur="updateGuideNote(${it.id},${idx},this.value)" style="margin-top:${isIP?'10px':'0'}">${esc(g.note)}</textarea>
+              <button class="ghost" onclick="toggleGuideStep(${it.id},${idx})">${g.done?'완료 해제':'완료로 표시'}</button>
+            </div>
+          </details>`;
+        }).join('')}
+      </div>
+      <div class="vault-actions" style="margin-top:14px">
+        <button class="ghost" onclick="delProduct(${it.id})">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 /* ---------- 히스토리 & 통계 ---------- */
+function onHistSearch(v){ histQuery = v.trim().toLowerCase(); renderHistory(); }
 function renderHistory(){
   $('stSprints').textContent = state.history.length;
   $('stIdeas').textContent = state.history.length*10;
@@ -556,7 +957,10 @@ function renderHistory(){
     list.innerHTML = `<div class="empty"><b>아직 완주한 스프린트가 없습니다.</b><br>첫 10개를 채우면 여기에 기록이 시작됩니다.</div>`;
     return;
   }
-  list.innerHTML = [...state.history].reverse().map(h=>`
+  let items = [...state.history].reverse();
+  if(histQuery) items = items.filter(h => h.topic.toLowerCase().includes(histQuery));
+  if(!items.length){ list.innerHTML = `<div class="empty">검색 결과가 없습니다.</div>`; return; }
+  list.innerHTML = items.map(h=>`
     <details class="hist-item">
       <summary><span class="d">${h.date}</span><span class="t">${esc(h.topic)}</span></summary>
       <ul>${h.ideas.map((t,i)=>`<li class="${i>=6?'zone':''}"><span class="num">${i+1}</span><span>${esc(t)}</span></li>`).join('')}</ul>
@@ -590,7 +994,7 @@ function importData(input){
 
 /* ---------- 공통 ---------- */
 function renderStreak(){ $('streakNum').textContent = state.streak; }
-function renderAll(){ renderSprint(); renderVault(); renderBoard(); renderHistory(); renderStreak(); }
+function renderAll(){ renderSprint(); renderVault(); renderBoard(); renderHistory(); renderProduct(); renderStreak(); renderHomeBanner(); }
 load();
 </script>
 </body>
