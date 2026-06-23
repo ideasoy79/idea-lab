@@ -2,260 +2,544 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>발상 연구소 — 매일 10개, 파괴는 7번째부터</title>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f5f7">
+<title>발상 연구소 — 혁신적인 발상의 시작</title>
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root{
-  --paper:#FAFAF7; --ink:#16161A; --ultra:#2B3FE0;
-  --marker:#FFE34D; --gray:#8A8A93; --line:#E4E4DE;
+  --bg:#f5f5f7; --card:#fff; --text1:#1d1d1f; --text2:#86868b;
+  --blue:#0066cc; --blue-h:#0077ED; --border:#d2d2d7;
+  --hi-bg:#e8f0fe; --danger:#d70015;
+  --grad-ai:linear-gradient(90deg,#2B80FF,#D93B88,#FF8D3B);
+  --grad-blue:linear-gradient(135deg,#007aff,#005bb5);
+  --sh-sm:0 2px 8px rgba(0,0,0,.05);
+  --sh-md:0 4px 16px rgba(0,0,0,.09);
+  --sh-lg:0 8px 32px rgba(0,0,0,.13);
+  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-pill:999px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans KR',sans-serif;line-height:1.6;min-height:100vh}
-.display{font-family:'Black Han Sans',sans-serif;font-weight:400;letter-spacing:-0.01em}
-
-header{border-bottom:2px solid var(--ink);padding:18px 20px 14px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;max-width:880px;margin:0 auto}
-header h1{font-size:1.4rem}
-header h1 .display{color:var(--ultra)}
-.head-right{display:flex;align-items:baseline;gap:14px}
-.streak{font-size:.85rem;color:var(--gray);white-space:nowrap}
-.streak b{font-family:'Black Han Sans';font-size:1.3rem;color:var(--ink);background:linear-gradient(transparent 55%,var(--marker) 55%);padding:0 3px}
-.gear{background:none;border:none;cursor:pointer;font-size:1.05rem;color:var(--gray)}
-.gear:hover{color:var(--ink)}
-
-nav{max-width:880px;margin:0 auto;display:flex;border-bottom:1px solid var(--line)}
-nav button{flex:1;padding:13px 4px;background:none;border:none;cursor:pointer;font-family:'IBM Plex Sans KR';font-size:.9rem;font-weight:500;color:var(--gray);border-bottom:3px solid transparent;transition:color .15s,border-color .15s}
-nav button.active{color:var(--ultra);border-bottom-color:var(--ultra)}
-nav button:focus-visible{outline:2px solid var(--ultra);outline-offset:-2px}
-
-main{max-width:880px;margin:0 auto;padding:28px 20px 80px}
-section{display:none}
-section.show{display:block}
-.sprint-head{margin-bottom:22px}
-.eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.12em;color:var(--ultra);text-transform:uppercase;margin-bottom:6px}
-.sprint-head h2{font-size:1.55rem;line-height:1.35}
-.hl{background:linear-gradient(transparent 55%,var(--marker) 55%);padding:0 2px}
-
-input[type=text],input[type=password],textarea{font-family:'IBM Plex Sans KR';font-size:1rem;color:var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:0;padding:11px 13px;width:100%}
-input:focus,textarea:focus{outline:2px solid var(--ultra);outline-offset:1px}
-button.primary{font-family:'IBM Plex Sans KR';font-weight:600;font-size:.95rem;background:var(--ultra);color:#fff;border:none;padding:11px 20px;cursor:pointer;white-space:nowrap}
-button.primary:hover{background:#1F30C4}
-button.primary:disabled{background:var(--gray);cursor:wait}
-button.ghost{font-family:'IBM Plex Sans KR';font-size:.85rem;font-weight:500;background:none;border:1.5px solid var(--ink);padding:7px 14px;cursor:pointer;color:var(--ink);white-space:nowrap}
-button.ghost:hover{background:var(--ink);color:#fff}
-button.ghost:disabled{opacity:.4;cursor:wait}
-
-.topic-row{display:flex;gap:8px;margin:18px 0 10px}
-.suggest-row{display:flex;gap:8px;align-items:center;margin-bottom:26px;font-size:.85rem;color:var(--gray);flex-wrap:wrap}
-.suggest-row .q{font-style:normal;color:var(--ink);background:#fff;border:1px dashed var(--gray);padding:5px 10px;cursor:pointer;font-family:'IBM Plex Sans KR';font-size:.85rem}
-.suggest-row .q:hover{border-color:var(--ultra);color:var(--ultra)}
-
-.rail{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-bottom:8px}
-.rail .slot{height:10px;border:1.5px solid var(--ink);background:#fff}
-.rail .slot.zone{border-color:var(--ultra);background:repeating-linear-gradient(45deg,#fff,#fff 3px,var(--marker) 3px,var(--marker) 6px)}
-.rail .slot.fill{background:var(--ink)}
-.rail .slot.zone.fill{background:var(--ultra)}
-.rail-label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--gray);margin-bottom:22px}
-.rail-label .zone-tag{color:var(--ultra);font-weight:600}
-
-.idea-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
-.idea-list li{display:flex;gap:12px;align-items:baseline;border-left:3px solid var(--line);padding:6px 0 6px 14px}
-.idea-list li.zone{border-left-color:var(--ultra);background:rgba(255,227,77,.18)}
-.idea-list li .num{font-family:'Black Han Sans';font-size:1.05rem;color:var(--gray);min-width:24px}
-.idea-list li.zone .num{color:var(--ultra)}
-.idea-input-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.idea-input-row input{flex:1;min-width:200px}
-.idea-input-row .num{font-family:'Black Han Sans';font-size:1.4rem;min-width:34px;text-align:center}
-.idea-input-row .num.zone{color:var(--ultra)}
-.zone-banner{margin:14px 0;padding:10px 14px;font-size:.9rem;font-weight:500;background:var(--marker);border-left:4px solid var(--ultra)}
-.done-banner{margin:20px 0;padding:18px;text-align:center;border:2px solid var(--ultra)}
-.done-banner .display{font-size:1.4rem;color:var(--ultra);display:block;margin-bottom:6px}
-
-.ai-box{margin:16px 0;border:1.5px solid var(--ultra);background:#fff;padding:14px 16px}
-.ai-box .ai-tag{font-size:.72rem;font-weight:600;letter-spacing:.1em;color:var(--ultra);margin-bottom:8px}
-.ai-box .prov{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
-.ai-box .prov:last-child{border-bottom:none}
-.ai-box .prov .ptype{font-size:.72rem;font-weight:600;color:#fff;background:var(--ultra);padding:2px 7px;white-space:nowrap}
-.ai-note{font-size:.78rem;color:var(--gray);margin-top:8px}
-
-.vault-item{border:1.5px solid var(--ink);background:#fff;padding:16px;margin-bottom:14px}
-.vault-item .meta{font-size:.78rem;color:var(--gray);margin-bottom:4px}
-.vault-item .txt{font-size:1rem;margin-bottom:12px}
-.score-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
-.crit{display:flex;align-items:center;gap:6px;font-size:.82rem}
-.crit .dots{display:flex;gap:3px}
-.crit .dot{width:18px;height:18px;border:1.5px solid var(--ink);background:#fff;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Sans KR'}
-.crit .dot.on{background:var(--ultra);border-color:var(--ultra);color:#fff}
-.total{margin-left:auto;font-family:'Black Han Sans';font-size:1.1rem}
-.total.hi{color:var(--ultra)}
-.vault-actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
-.compare-box{margin-top:12px;border-top:1.5px dashed var(--line);padding-top:12px;font-size:.88rem;white-space:pre-wrap}
-.compare-box .ai-tag{font-size:.72rem;font-weight:600;letter-spacing:.1em;color:var(--ultra);margin-bottom:6px}
-.empty{padding:48px 20px;text-align:center;color:var(--gray);border:1.5px dashed var(--line)}
-.empty b{color:var(--ink)}
-
-.kanban{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-@media(max-width:640px){.kanban{grid-template-columns:1fr}}
-.col h3{font-size:.85rem;font-weight:600;letter-spacing:.06em;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:10px}
-.col h3 span{color:var(--gray);font-weight:400}
-.card{border:1.5px solid var(--ink);background:#fff;padding:12px;margin-bottom:10px;font-size:.9rem}
-.card .hyp{font-size:.8rem;color:var(--gray);margin-top:6px;white-space:pre-wrap}
-.card .reason{font-size:.78rem;margin-top:6px;padding:6px 8px;background:var(--paper);border-left:3px solid var(--gray)}
-.card .move{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.card .move button{font-size:.75rem;padding:5px 10px}
-.card.win{border-color:var(--ultra);box-shadow:3px 3px 0 var(--marker)}
-
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
-@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
-.stat{border:1.5px solid var(--ink);background:#fff;padding:12px;text-align:center}
-.stat .v{font-family:'Black Han Sans';font-size:1.6rem;color:var(--ultra)}
-.stat .l{font-size:.75rem;color:var(--gray)}
-.hist-item{border:1.5px solid var(--ink);background:#fff;margin-bottom:12px}
-.hist-item summary{padding:13px 16px;cursor:pointer;display:flex;gap:12px;align-items:baseline;list-style:none}
-.hist-item summary::-webkit-details-marker{display:none}
-.hist-item summary .d{font-size:.78rem;color:var(--gray);min-width:84px}
-.hist-item summary .t{font-weight:500}
-.hist-item ul{list-style:none;padding:0 16px 14px}
-.hist-item ul li{display:flex;gap:10px;font-size:.88rem;padding:3px 0}
-.hist-item ul li .num{font-family:'Black Han Sans';color:var(--gray);min-width:22px;font-size:.85rem}
-.hist-item ul li.zone .num{color:var(--ultra)}
-.hist-item ul li.zone{background:rgba(255,227,77,.18)}
-.backup-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-
-.badge-src{font-size:.7rem;font-weight:600;padding:2px 8px;border:1px solid var(--ink);white-space:nowrap}
-.badge-src.auto{background:var(--ultra);color:#fff;border-color:var(--ultra)}
-.badge-rec{font-size:.72rem;font-weight:600;padding:3px 9px;background:var(--marker);border:1px solid var(--ink);white-space:nowrap}
-.manual-row{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
-.manual-row input{flex:1;min-width:200px}
-.guide-wrap{margin-top:14px;border-top:1.5px dashed var(--line);padding-top:12px}
-.guide-progress{font-size:.78rem;color:var(--gray);margin-bottom:10px}
-.guide-progress b{color:var(--ultra)}
-.guide-step{border:1px solid var(--line);margin-bottom:6px}
-.guide-step summary{padding:9px 12px;cursor:pointer;list-style:none;display:flex;gap:10px;align-items:center;font-size:.88rem}
-.guide-step summary::-webkit-details-marker{display:none}
-.guide-step .chk{width:18px;height:18px;border:1.5px solid var(--ink);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:#fff}
-.guide-step.done summary .chk{background:var(--ultra);border-color:var(--ultra);color:#fff}
-.guide-step.done summary .stitle{text-decoration:line-through;color:var(--gray)}
-.guide-step .body{padding:0 12px 12px 40px}
-.guide-step .prompt{font-size:.78rem;color:var(--gray);margin-bottom:6px}
-.guide-step textarea{min-height:60px;font-size:.9rem}
-.guide-step .body button{margin-top:8px}
-
-#homeBanner{margin-bottom:24px}
-.home-card{border:2px solid var(--ink);background:#fff;padding:16px;box-shadow:4px 4px 0 var(--marker)}
-.home-card .htag{font-size:.72rem;font-weight:600;letter-spacing:.1em;color:var(--ultra);text-transform:uppercase;margin-bottom:6px}
-.home-card .hmain{font-size:1.05rem;font-weight:600;margin-bottom:4px}
-.home-card .hsub{font-size:.85rem;color:var(--gray)}
-.home-stats{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap}
-.home-stats span{font-size:.78rem;color:var(--gray)}
-.home-stats b{font-family:'Black Han Sans';color:var(--ink);font-size:1rem}
-.badge-elapsed{font-size:.7rem;font-weight:600;padding:2px 7px;border:1px solid var(--gray);color:var(--gray);white-space:nowrap}
-.badge-elapsed.warn{border-color:#C0392B;color:#C0392B;background:#FDEDEC}
-.vault-toolbar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-.vault-toolbar input{flex:1;min-width:160px}
-.vault-toolbar button{font-size:.8rem;white-space:nowrap}
-
-dialog{border:2px solid var(--ink);background:var(--paper);padding:24px;max-width:480px;width:92%}
-dialog::backdrop{background:rgba(22,22,26,.45)}
-dialog h3{font-size:1.1rem;margin-bottom:12px}
-dialog textarea{min-height:90px;margin:10px 0;resize:vertical}
-dialog .row{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
-dialog p.small{font-size:.82rem;color:var(--gray)}
-
-footer{max-width:880px;margin:0 auto;padding:20px;font-size:.75rem;color:var(--gray);border-top:1px solid var(--line)}
-@media(prefers-reduced-motion:no-preference){
-  section.show{animation:fade .25s ease}
-  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+body{
+  background:var(--bg); color:var(--text1);
+  font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  line-height:1.5; min-height:100vh; overflow-y:scroll;
+  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+  padding-bottom:env(safe-area-inset-bottom,16px);
 }
+.gradient-text{background:var(--grad-ai);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
+
+/* ── Header ── */
+header{
+  padding:20px 20px 0;
+  display:flex; align-items:center; justify-content:space-between;
+  max-width:960px; margin:0 auto;
+}
+header h1{font-size:1.5rem;display:flex;align-items:center;gap:8px;}
+.head-right{display:flex;align-items:center;gap:14px;}
+.streak{font-size:.9rem;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:6px;}
+.streak b{font-size:1.1rem;color:var(--text1);background:var(--hi-bg);padding:2px 10px;border-radius:var(--r-pill);}
+.gear{background:none;border:none;cursor:pointer;color:var(--text2);display:flex;align-items:center;transition:color .2s;}
+.gear:hover{color:var(--text1);}
+
+/* ── Nav ── */
+nav{
+  max-width:960px; margin:16px auto 16px;
+  display:flex; background:#e5e5ea;
+  padding:4px; border-radius:var(--r-pill); gap:2px;
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+}
+nav::-webkit-scrollbar{display:none;}
+nav button{
+  flex:1; min-width:64px; padding:10px 6px;
+  background:transparent; border:none; border-radius:var(--r-pill);
+  cursor:pointer; font-family:inherit; font-size:.88rem; font-weight:600;
+  color:var(--text2); transition:all .2s; white-space:nowrap;
+}
+nav button.active{background:var(--card);color:var(--text1);box-shadow:0 2px 4px rgba(0,0,0,.07);}
+
+/* ── Main ── */
+main{max-width:960px;margin:0 auto;padding:16px 16px 80px;}
+section{display:none;animation:slideUp .35s cubic-bezier(.16,1,.3,1);}
+section.show{display:block;}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.sprint-head{margin-bottom:28px;text-align:center;}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.05em;color:var(--text2);text-transform:uppercase;margin-bottom:8px;}
+.sprint-head h2{font-size:2rem;line-height:1.3;}
+@media(max-width:480px){.sprint-head h2{font-size:1.6rem;}}
+
+/* ── Inputs ── */
+.input-wrap{position:relative;flex:1;width:100%;display:flex;align-items:center;}
+.char-count{position:absolute;right:14px;font-size:.78rem;color:var(--text2);pointer-events:none;}
+input[type=text],input[type=password],textarea{
+  font-family:inherit;font-size:1rem;color:var(--text1);
+  background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);
+  padding:13px 16px;width:100%;transition:all .2s;box-shadow:var(--sh-sm);
+}
+input:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,102,204,.18);}
+textarea{resize:none;overflow-y:hidden;}
+
+/* ── Buttons ── */
+button.primary{
+  font-family:inherit;font-weight:600;font-size:.95rem;
+  background:var(--blue);color:#fff;border:none;
+  padding:12px 22px;border-radius:var(--r-pill);
+  cursor:pointer;white-space:nowrap;transition:all .2s;
+  box-shadow:0 4px 12px rgba(0,102,204,.28);
+  display:inline-flex;align-items:center;gap:6px;
+}
+button.primary:hover{background:var(--blue-h);transform:translateY(-1px);}
+button.primary:active{transform:translateY(0);}
+button.primary:disabled{background:var(--border);box-shadow:none;cursor:wait;}
+button.ghost{
+  font-family:inherit;font-size:.88rem;font-weight:600;
+  background:#fff;border:1px solid var(--border);
+  padding:10px 16px;border-radius:var(--r-pill);
+  cursor:pointer;color:var(--text1);white-space:nowrap;
+  transition:all .2s;box-shadow:var(--sh-sm);
+  display:inline-flex;align-items:center;gap:6px;
+}
+button.ghost:hover{border-color:var(--text1);background:#fdfdfd;}
+button.ghost:active{background:#f0f0f0;}
+
+/* ── Topic Row ── */
+.topic-row{display:flex;gap:10px;margin:20px 0 12px;align-items:stretch;}
+.topic-row button.primary{padding:13px 20px;}
+.suggest-row{display:flex;gap:8px;align-items:center;margin-bottom:28px;font-size:.88rem;color:var(--text2);flex-wrap:wrap;justify-content:center;}
+.suggest-row .q{font-style:normal;color:var(--text1);background:transparent;border:1px solid var(--border);padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;font-size:.88rem;transition:all .2s;font-weight:500;}
+.suggest-row .q:hover{border-color:var(--blue);color:var(--blue);background:#fff;}
+
+/* ── Rail ── */
+.rail{display:flex;gap:6px;margin-bottom:10px;height:11px;}
+.rail .slot{flex:1;border-radius:var(--r-pill);background:#e5e5ea;transition:all .3s;}
+.rail .slot.zone::after{content:'';position:absolute;inset:0;background:var(--grad-ai);opacity:.15;}
+.rail .slot.zone{background:#e5e5ea;position:relative;overflow:hidden;}
+.rail .slot.fill{background:var(--text1);}
+.rail .slot.zone.fill{background:linear-gradient(90deg,#2B80FF,#D93B88);}
+.rail-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--text2);margin-bottom:28px;font-weight:600;padding:0 2px;}
+.rail-label .zone-tag{background:var(--grad-ai);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+/* ── Idea List ── */
+.idea-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.idea-list li{
+  display:flex;gap:14px;align-items:center;
+  background:var(--card);padding:14px 18px;
+  border-radius:var(--r-md);box-shadow:var(--sh-sm);
+  animation:slideIn .25s ease-out;border-left:4px solid transparent;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.idea-list li.zone{border-left-color:#D93B88;}
+.idea-list li .num{font-size:1rem;color:var(--text2);font-weight:700;width:26px;text-align:center;}
+.idea-list li.zone .num{color:#D93B88;}
+.idea-input-row{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  background:#fff;padding:14px;border-radius:var(--r-md);box-shadow:var(--sh-md);
+}
+.idea-input-row input{min-width:0;}
+.idea-input-row .num{font-size:1.3rem;font-weight:700;min-width:30px;text-align:center;color:var(--text2);}
+.idea-input-row .num.zone{background:var(--grad-ai);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.zone-banner{
+  margin:20px 0;padding:14px 20px;font-size:.9rem;font-weight:600;
+  background:linear-gradient(to right,rgba(217,59,136,.1),rgba(255,141,59,.1));
+  border-radius:var(--r-md);border:1px solid rgba(217,59,136,.2);color:#D93B88;
+  display:flex;align-items:center;gap:10px;
+}
+.done-banner{
+  margin:28px 0;padding:28px 20px;text-align:center;
+  background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh-lg);
+}
+.done-banner .display{font-size:1.6rem;font-weight:700;margin-bottom:10px;display:inline-block;}
+
+/* ── Vault ── */
+.vault-toolbar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:stretch;}
+.vault-toolbar .input-wrap{min-width:180px;}
+.vault-item{
+  background:var(--card);padding:20px;margin-bottom:14px;
+  border-radius:var(--r-lg);box-shadow:var(--sh-sm);
+  transition:transform .2s,box-shadow .2s;border:1px solid rgba(0,0,0,.03);
+}
+.vault-item:hover{transform:translateY(-2px);box-shadow:var(--sh-md);}
+.vault-item .meta{font-size:.82rem;color:var(--text2);margin-bottom:6px;font-weight:500;}
+.vault-item .txt{font-size:1.05rem;margin-bottom:14px;font-weight:600;line-height:1.5;}
+.score-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--bg);padding:10px 14px;border-radius:var(--r-sm);}
+.crit{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:500;}
+.crit .dots{display:flex;gap:4px;}
+.crit .dot{
+  width:26px;height:26px;border:1px solid var(--border);background:#fff;
+  border-radius:50%;cursor:pointer;font-size:.78rem;font-weight:600;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--text2);
+}
+.crit .dot:hover:not(.on){border-color:var(--text1);color:var(--text1);}
+.crit .dot.on{background:var(--text1);border-color:var(--text1);color:#fff;}
+.total{margin-left:auto;font-size:1.2rem;font-weight:700;color:var(--text2);}
+.total.hi{color:var(--blue);}
+.vault-actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.ai-box{margin:14px 0;background:#fafafa;padding:14px 18px;border-radius:var(--r-md);border:1px solid var(--border);}
+.ai-box .ai-tag{font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ai-box .prov{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);font-size:.92rem;line-height:1.5;}
+.ai-box .prov:last-child{border-bottom:none;}
+.ai-box .prov .ptype{font-size:.72rem;font-weight:700;color:#fff;background:var(--blue);padding:3px 8px;border-radius:var(--r-sm);white-space:nowrap;margin-top:2px;flex-shrink:0;}
+.ai-note{font-size:.82rem;color:var(--text2);margin-top:10px;font-weight:500;}
+.compare-box{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;font-size:.92rem;white-space:pre-wrap;line-height:1.6;}
+.compare-box .ai-tag{font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+.empty{padding:48px 20px;text-align:center;color:var(--text2);background:var(--card);border-radius:var(--r-lg);box-shadow:var(--sh-sm);font-size:1rem;}
+.empty b{color:var(--text1);display:block;margin-bottom:8px;font-size:1.05rem;}
+
+/* ── Board ── */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:740px){.kanban{grid-template-columns:1fr;}}
+.col{background:#e5e5ea;padding:14px;border-radius:var(--r-lg);}
+.col h3{font-size:.95rem;font-weight:700;padding-bottom:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,.1);}
+.col h3 span{color:var(--text2);font-size:.82rem;font-weight:600;background:#fff;padding:2px 8px;border-radius:var(--r-pill);}
+.card{background:var(--card);padding:14px;margin-bottom:10px;border-radius:var(--r-md);font-size:.92rem;box-shadow:var(--sh-sm);transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translateY(-2px);box-shadow:var(--sh-md);}
+.card b{display:block;margin-bottom:6px;line-height:1.4;font-size:.95rem;}
+.card .hyp{font-size:.82rem;color:var(--text2);background:var(--bg);padding:7px 10px;border-radius:var(--r-sm);margin-top:7px;white-space:pre-wrap;}
+.card .reason{font-size:.82rem;margin-top:7px;padding:7px 10px;background:#fff5f5;border-left:3px solid #ff3b30;color:#d70015;border-radius:0 var(--r-sm) var(--r-sm) 0;}
+.card .elapsed{font-size:.75rem;font-weight:700;padding:3px 8px;border-radius:var(--r-pill);background:#fff3cd;color:#856404;margin-left:auto;}
+.card .elapsed.warn{background:#fde8e8;color:#d70015;}
+.card .move{margin-top:12px;display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+.card .move button{font-size:.78rem;padding:7px 12px;}
+.card.win{box-shadow:0 0 0 2px var(--blue),var(--sh-sm);}
+
+/* ── Stats & History ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr);}}
+.stat{background:var(--card);padding:18px;text-align:center;border-radius:var(--r-lg);box-shadow:var(--sh-sm);}
+.stat .v{font-size:2.2rem;font-weight:700;background:var(--grad-blue);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;}
+.stat .l{font-size:.82rem;color:var(--text2);font-weight:600;margin-top:4px;}
+.hist-item{background:var(--card);margin-bottom:14px;border-radius:var(--r-md);box-shadow:var(--sh-sm);overflow:hidden;}
+.hist-item summary{padding:14px 18px;cursor:pointer;display:flex;gap:14px;align-items:center;list-style:none;transition:background .2s;font-weight:600;font-size:.95rem;}
+.hist-item summary:hover{background:#fafafa;}
+.hist-item summary::-webkit-details-marker{display:none;}
+.hist-item summary .d{font-size:.82rem;color:var(--text2);font-weight:500;background:var(--bg);padding:3px 9px;border-radius:var(--r-pill);flex-shrink:0;}
+.hist-item ul{list-style:none;padding:0 18px 18px;border-top:1px solid var(--border);margin-top:4px;}
+.hist-item ul li{display:flex;gap:10px;font-size:.92rem;padding:7px 0;border-bottom:1px dashed var(--border);}
+.hist-item ul li:last-child{border-bottom:none;}
+.hist-item ul li .num{color:var(--text2);font-weight:700;width:22px;flex-shrink:0;}
+.hist-item ul li.zone .num{color:#D93B88;}
+.backup-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;}
+
+/* ── Product ── */
+.manual-row{display:flex;gap:10px;margin-bottom:20px;align-items:stretch;flex-wrap:wrap;}
+.manual-row .input-wrap{flex:1;min-width:200px;}
+.manual-row button.primary{padding:13px 20px;}
+.badge-src{font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:var(--r-pill);background:#e5e5ea;color:var(--text1);white-space:nowrap;}
+.badge-src.auto{background:var(--blue);color:#fff;}
+.badge-rec{font-size:.78rem;font-weight:700;padding:3px 11px;background:var(--grad-ai);color:#fff;border-radius:var(--r-pill);white-space:nowrap;}
+.guide-wrap{margin-top:18px;border-top:1px solid var(--border);padding-top:18px;}
+.guide-progress{font-size:.88rem;color:var(--text2);margin-bottom:10px;font-weight:600;}
+.guide-progress b{color:var(--blue);}
+.guide-step{background:#fafafa;border-radius:var(--r-md);margin-bottom:8px;border:1px solid var(--border);overflow:hidden;}
+.guide-step summary{padding:12px 14px;cursor:pointer;list-style:none;display:flex;gap:10px;align-items:center;font-size:.92rem;font-weight:600;transition:background .2s;}
+.guide-step summary:hover{background:#f0f0f0;}
+.guide-step summary::-webkit-details-marker{display:none;}
+.guide-step .chk{width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;transition:all .2s;color:transparent;flex-shrink:0;}
+.guide-step.done summary .chk{background:var(--blue);border-color:var(--blue);color:#fff;}
+.guide-step.done summary .stitle{text-decoration:line-through;color:var(--text2);}
+.guide-step .body{padding:0 14px 14px 42px;}
+.guide-step .prompt{font-size:.83rem;color:var(--text2);margin-bottom:8px;line-height:1.5;}
+
+/* ── Home Banner ── */
+#homeBanner{margin-bottom:24px;}
+.home-card{background:var(--card);padding:20px 24px;border-radius:var(--r-lg);box-shadow:var(--sh-md);display:flex;align-items:center;gap:16px;}
+.home-card-icon{width:44px;height:44px;border-radius:var(--r-md);background:var(--hi-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.home-card-body .htag{font-size:.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;margin-bottom:4px;letter-spacing:.04em;}
+.home-card-body .hmain{font-size:1.05rem;font-weight:700;margin-bottom:2px;}
+.home-card-body .hsub{font-size:.85rem;color:var(--text2);}
+
+/* ── Dialogs ── */
+dialog{
+  border:none;background:rgba(255,255,255,.88);padding:28px;
+  max-width:460px;width:92%;margin:auto;border-radius:var(--r-lg);
+  box-shadow:var(--sh-lg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+dialog::backdrop{background:rgba(0,0,0,.38);backdrop-filter:blur(4px);}
+dialog h3{font-size:1.2rem;margin-bottom:10px;}
+dialog p.small{font-size:.88rem;color:var(--text2);margin-bottom:14px;}
+dialog textarea{min-height:80px;margin:12px 0;}
+dialog .row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+dialog .sep{border:none;border-top:1px solid var(--border);margin:20px 0;}
+
+/* ── Toast ── */
+#toast-container{position:fixed;bottom:max(32px,env(safe-area-inset-bottom,32px));left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:max-content;max-width:calc(100vw - 32px);}
+.toast{background:rgba(29,29,31,.92);backdrop-filter:blur(10px);color:#fff;padding:12px 22px;border-radius:var(--r-pill);font-size:.92rem;font-weight:500;box-shadow:var(--sh-md);animation:toastIn .3s cubic-bezier(.16,1,.3,1),toastOut .3s ease 2.5s forwards;display:flex;align-items:center;gap:8px;}
+.toast.error{background:rgba(215,0,21,.92);}
+@keyframes toastIn{from{opacity:0;transform:translateY(30px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(10px)}}
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-radius:50%;border-top-color:#fff;animation:spin 1s linear infinite;}
+.ghost .spinner{border-color:rgba(0,0,0,.1);border-top-color:var(--text1);}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Footer ── */
+footer{
+  max-width:960px;margin:0 auto;
+  padding:20px 20px max(20px,env(safe-area-inset-bottom,20px));
+  font-size:.82rem;color:var(--text2);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:6px;
+}
+
+/* ═══════════════════════════════════════
+   반응형 레이아웃 (세로/가로 모드)
+═══════════════════════════════════════ */
+
+/* ── 모바일 세로 기본 ── */
+@media(max-width:640px){
+  header{padding:14px 14px 0;}
+  header h1{font-size:1.3rem;}
+  nav{margin:12px 14px 12px;padding:3px;}
+  nav button{font-size:.8rem;padding:9px 4px;min-width:52px;}
+  main{padding:12px 14px 70px;}
+  .sprint-head h2{font-size:1.5rem;}
+  .topic-row{flex-direction:column;gap:8px;}
+  .topic-row button.primary{width:100%;justify-content:center;}
+  .idea-input-row{gap:8px;padding:12px;}
+  .idea-input-row button.primary{width:100%;justify-content:center;}
+  .idea-input-row button.ghost{width:100%;justify-content:center;}
+  .score-row{gap:8px;padding:8px 10px;}
+  .crit{font-size:.78rem;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .stat .v{font-size:1.8rem;}
+  .vault-toolbar{flex-direction:column;}
+  .vault-actions{flex-direction:column;}
+  .vault-actions button{width:100%;justify-content:center;}
+  .home-card{padding:16px;}
+  .kanban{grid-template-columns:1fr;}
+  dialog{padding:22px 16px;}
+}
+
+/* ── 가로 모드 (landscape) ── */
+@media(orientation:landscape) and (max-height:540px){
+  header{padding:10px 20px 0;}
+  header h1{font-size:1.2rem;}
+  .streak b{font-size:1rem;}
+  nav{margin:8px 20px 8px;}
+  nav button{padding:8px 6px;font-size:.82rem;}
+  main{padding:10px 20px 60px;}
+  .sprint-head{margin-bottom:16px;}
+  .sprint-head h2{font-size:1.5rem;}
+  .topic-row{flex-direction:row;margin:14px 0 10px;}
+  .suggest-row{margin-bottom:16px;}
+  .rail-label{margin-bottom:16px;}
+  .done-banner{padding:20px;}
+  /* 가로 모드: 아이디어 입력+목록 2열 */
+  .idea-list li{padding:10px 14px;}
+  .idea-input-row{padding:10px 12px;}
+  .vault-item{padding:14px;}
+}
+
+/* ── 태블릿/데스크톱 ── */
+@media(min-width:768px){
+  header{padding:28px 24px 0;}
+  main{padding:24px 24px 80px;}
+  .topic-row{flex-direction:row;}
+  .idea-input-row{gap:12px;}
+}
+@media(min-width:960px){
+  .kanban{grid-template-columns:repeat(3,1fr);}
+}
+
+/* ── 가로모드 칸반 최적화 ── */
+@media(orientation:landscape) and (min-width:700px){
+  .kanban{grid-template-columns:repeat(3,1fr);}
+}
+
+/* ══════════ 비전·로그인 스크린 ══════════ */
+.fullscreen{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:linear-gradient(155deg,#f0f4ff 0%,#fdf2fa 50%,#fff8f0 100%);padding:24px;overflow-y:auto;}
+.vision-card{background:rgba(255,255,255,.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.9);border-radius:32px;padding:56px 36px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.1);animation:fadeUp .6s cubic-bezier(.16,1,.3,1);cursor:pointer;transition:transform .2s;}
+.vision-card:active{transform:scale(.98);}
+.vision-logo{width:80px;height:80px;border-radius:24px;margin:0 auto 28px;background:linear-gradient(145deg,#e8f0fe,#fce4f4,#fff3e8);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,102,204,.15);}
+.vision-title{font-size:2rem;font-weight:800;letter-spacing:-.03em;margin-bottom:16px;}
+.vision-sub{font-size:1rem;color:var(--text2);line-height:1.8;font-weight:500;}
+.vision-hint{margin-top:40px;font-size:.9rem;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:8px;animation:breathe 2.5s ease infinite;}
+@keyframes breathe{0%,100%{opacity:.35}50%{opacity:.9}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.login-card{background:rgba(255,255,255,.82);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.9);border-radius:28px;padding:44px 32px;max-width:420px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.1);animation:fadeUp .45s cubic-bezier(.16,1,.3,1);}
+.login-header{text-align:center;margin-bottom:32px;}
+.login-header h2{font-size:1.6rem;font-weight:800;margin-bottom:8px;}
+.login-header p{font-size:.92rem;color:var(--text2);line-height:1.6;}
+.login-input{width:100%;padding:13px 16px;background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);font-size:1rem;font-family:inherit;color:var(--text1);margin-bottom:10px;transition:all .2s;box-shadow:var(--sh-sm);outline:none;}
+.login-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,102,204,.18);}
+.login-input::placeholder{color:var(--text2);}
+.login-btn{width:100%;padding:14px;border:none;border-radius:var(--r-pill);font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;transition:all .2s;}
+.login-btn.main{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(0,102,204,.3);}
+.login-btn.main:hover{background:var(--blue-h);transform:translateY(-1px);}
+.login-btn.main:disabled{background:var(--border);box-shadow:none;cursor:wait;}
+.login-error{font-size:.88rem;color:var(--danger);background:#fff5f5;border:1px solid rgba(215,0,21,.15);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;display:none;}
+.login-toggle{text-align:center;font-size:.9rem;color:var(--text2);margin-top:20px;}
+.login-toggle span{color:var(--blue);font-weight:700;cursor:pointer;text-decoration:underline;}
+.pw-reset-link{display:block;text-align:right;font-size:.82rem;color:var(--text2);cursor:pointer;margin-top:-4px;margin-bottom:14px;}
+.pw-reset-link:hover{color:var(--blue);}
+.pw-reset-panel{margin-top:14px;padding:16px;background:var(--hi-bg);border-radius:var(--r-md);display:none;}
+.pw-reset-panel .ptitle{font-size:.88rem;font-weight:700;color:var(--blue);margin-bottom:10px;}
+.pw-reset-msg{font-size:.82rem;margin-top:8px;display:none;}
+.caps-warn{display:none;font-size:.8rem;color:#ff9500;margin-top:-4px;margin-bottom:10px;padding:7px 12px;background:#fff8e8;border-radius:var(--r-sm);}
+/* 싱크 배지 & 로그아웃 */
+.sync-badge{display:flex;align-items:center;gap:5px;background:var(--hi-bg);padding:5px 12px;border-radius:var(--r-pill);font-size:.8rem;font-weight:600;color:var(--blue);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0;transition:background .3s;}
+.sync-dot.syncing{background:#ff9500;animation:breathe 1s infinite;}
+.sync-dot.error{background:var(--danger);}
+.logout-btn{font-family:inherit;font-size:.82rem;font-weight:600;background:none;border:1px solid var(--border);padding:6px 12px;border-radius:var(--r-pill);cursor:pointer;color:var(--text2);transition:all .2s;display:flex;align-items:center;gap:4px;}
+.logout-btn:hover{border-color:var(--danger);color:var(--danger);}
+/* 반응형 */
+@media(max-width:480px){.vision-card{padding:36px 20px;border-radius:24px;}.vision-title{font-size:1.6rem;}.login-card{padding:32px 20px;border-radius:22px;}}
+@media(orientation:landscape) and (max-height:540px){.vision-card{padding:28px 24px;}.vision-logo{width:56px;height:56px;margin-bottom:16px;}.vision-title{font-size:1.4rem;}.login-card{padding:24px 28px;}}
+
 </style>
 </head>
 <body>
 
+<div class="fullscreen" id="vision-screen">
+  <div class="vision-card" onclick="showLogin()">
+    <div class="vision-logo"><i data-lucide="sparkles" style="color:var(--blue);width:36px;height:36px;"></i></div>
+    <div class="vision-title gradient-text">발상 연구소</div>
+    <div class="vision-sub">매일 10분, 불편함 하나에서<br><b>아이디어 10개</b>를 뽑아냅니다.<br>발상 → 검증 → 상품화까지<br>AI와 함께 파괴적 혁신을 만들어가세요.</div>
+    <div class="vision-hint"><i data-lucide="hand" size="16"></i><span>화면을 터치해 시작</span></div>
+  </div>
+</div>
+
+<div class="fullscreen" id="login-screen" style="display:none;">
+  <div class="login-card">
+    <div class="login-header">
+      <div style="width:52px;height:52px;border-radius:16px;background:var(--hi-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+        <i data-lucide="sparkles" style="color:var(--blue);width:24px;height:24px;"></i>
+      </div>
+      <h2 class="gradient-text" id="auth-title">발상 연구소</h2>
+      <p id="auth-sub">로그인하면 모든 기기에서<br>같은 아이디어를 볼 수 있어요</p>
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <input class="login-input" id="auth-name" type="text" placeholder="닉네임 (예: 생각콩)" maxlength="12" style="display:none;">
+    <input class="login-input" id="auth-email" type="email" placeholder="이메일">
+    <input class="login-input" id="auth-pw" type="password" placeholder="비밀번호" oninput="detectCaps(event)">
+    <div class="caps-warn" id="caps-warn">⚠️</div>
+    <div class="pw-reset-link" onclick="togglePwReset()">비밀번호를 잊으셨나요?</div>
+    <button class="login-btn main" id="auth-submit" onclick="doAuth()">로그인</button>
+    <div class="pw-reset-panel" id="pw-reset-panel">
+      <div class="ptitle">비밀번호 재설정 이메일 발송</div>
+      <input class="login-input" id="reset-email" type="email" placeholder="가입한 이메일">
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <button class="login-btn main" style="flex:1;padding:10px;" onclick="sendReset()">이메일 발송</button>
+        <button class="login-btn" style="flex:1;padding:10px;background:var(--bg);border:1px solid var(--border);" onclick="togglePwReset()">취소</button>
+      </div>
+      <div class="pw-reset-msg" id="reset-msg"></div>
+    </div>
+    <div class="login-toggle" id="auth-toggle">
+      처음이세요? <span onclick="toggleSignup()">회원가입</span>
+    </div>
+  </div>
+</div>
+
+<div id="app-body" style="display:none;">
+<div id="toast-container"></div>
+
 <header>
-  <h1><span class="display">발상 연구소</span> <span style="font-size:.8rem;color:var(--gray);font-weight:400">매일 10개, 파괴는 7번째부터</span></h1>
+  <h1>
+    <i data-lucide="sparkles" style="color:var(--blue)"></i>
+    <span class="gradient-text">발상 연구소</span>
+  </h1>
   <div class="head-right">
-    <div class="streak">연속 <b id="streakNum">0</b> 일</div>
-    <button class="gear" onclick="settingsDialog.showModal()" aria-label="설정">⚙</button>
+    <div class="streak"><i data-lucide="flame" size="17"></i> 연속 <b id="streakNum">0</b>일</div>
+    <div class="sync-badge" id="sync-badge" style="display:none;"><div class="sync-dot" id="sync-dot"></div><span id="sync-text">동기화됨</span></div>
+    <button class="logout-btn" id="logout-btn" style="display:none;" onclick="logoutUser()"><i data-lucide="log-out" size="13"></i> 로그아웃</button>
+    <button class="gear" onclick="settingsDialog.showModal()" aria-label="설정"><i data-lucide="settings" size="20"></i></button>
   </div>
 </header>
 
 <nav>
-  <button class="active" data-tab="sprint">스프린트</button>
-  <button data-tab="vault">금고</button>
-  <button data-tab="board">검증 보드</button>
+  <button class="active" data-tab="sprint">아이디어</button>
+  <button data-tab="vault">보관함</button>
+  <button data-tab="board">검증</button>
   <button data-tab="history">히스토리</button>
   <button data-tab="product">상품화</button>
 </nav>
 
 <main>
 
-<!-- ===== 스프린트 ===== -->
+<!-- ===== 아이디어 발상 ===== -->
 <section id="sprint" class="show">
   <div id="homeBanner"></div>
   <div class="sprint-head">
-    <div class="eyebrow">Daily Sprint</div>
-    <h2>불편함 하나를 잡고, <span class="hl">아이디어 10개</span>를 밀어붙이세요</h2>
+    <div class="eyebrow">Idea Generation</div>
+    <h2>불편함 하나를 잡고,<br><span class="gradient-text">아이디어 10개</span>를 밀어붙이세요</h2>
   </div>
 
   <div id="topicArea">
     <div class="topic-row">
-      <input type="text" id="topicInput" placeholder="오늘의 불편함 — 예: 입주자대표회의 자료가 매번 부실하다" maxlength="120">
-      <button class="primary" onclick="startSprint()">시작</button>
+      <div class="input-wrap">
+        <input type="text" id="topicInput" placeholder="오늘의 불편함 (예: 회의 자료가 부실하다)" maxlength="120" oninput="updateCharCount(this,'topicCount')">
+        <span class="char-count" id="topicCount">0 / 120</span>
+      </div>
+      <button class="primary" onclick="startSprint()">시작 <i data-lucide="arrow-right" size="17"></i></button>
     </div>
     <div class="suggest-row">
-      <span>주제가 안 떠오르면 →</span>
+      <i data-lucide="lightbulb" size="15"></i>
+      <span>주제가 안 떠오르면</span>
       <button class="q" id="suggestQ" onclick="fillSuggest()"></button>
-      <button class="ghost" style="font-size:.75rem;padding:4px 10px" onclick="rollSuggest()">다른 질문</button>
+      <button class="ghost" style="padding:6px 12px;font-size:.8rem;" onclick="rollSuggest()"><i data-lucide="refresh-cw" size="13"></i> 변경</button>
     </div>
   </div>
 
   <div id="sprintArea" style="display:none">
-    <p style="font-size:.9rem;margin-bottom:14px">주제: <b id="topicLabel"></b></p>
+    <p style="font-size:1rem;margin-bottom:14px;text-align:center;font-weight:600;">주제: <b id="topicLabel" style="color:var(--blue)"></b></p>
     <div class="rail" id="rail"></div>
-    <div class="rail-label"><span>1 — 6 익숙한 답</span><span class="zone-tag">7 — 10 파괴 구간</span></div>
-
-    <ul class="idea-list" id="ideaList"></ul>
-
-    <div id="zoneBanner" class="zone-banner" style="display:none">
-      여기서부터 파괴 구간입니다. 뻔한 답은 다 썼습니다 — 거꾸로 뒤집거나, 10배로 키우거나, 공짜로 만들어 보세요.
+    <div class="rail-label">
+      <span>1 — 6 익숙한 답</span>
+      <span class="zone-tag">7 — 10 파괴 구간 ⚡</span>
     </div>
-
+    <ul class="idea-list" id="ideaList"></ul>
+    <div id="zoneBanner" class="zone-banner" style="display:none">
+      <i data-lucide="rocket" size="18"></i> 파괴 구간 — 거꾸로 뒤집거나, 10배로 키워보세요.
+    </div>
     <div id="aiProvBox"></div>
-
     <div class="idea-input-row" id="ideaInputRow">
       <span class="num" id="nextNum">1</span>
-      <input type="text" id="ideaInput" placeholder="아이디어를 입력하고 Enter" maxlength="200">
-      <button class="primary" onclick="addIdea()">추가</button>
-      <button class="ghost" id="provBtn" onclick="getProvocations()">⚡ 막혔어요</button>
+      <div class="input-wrap">
+        <input type="text" id="ideaInput" placeholder="아이디어를 입력하고 Enter" maxlength="200" oninput="updateCharCount(this,'ideaCount')">
+        <span class="char-count" id="ideaCount">0 / 200</span>
+      </div>
+      <button class="primary" onclick="addIdea()"><i data-lucide="plus" size="17"></i> 추가</button>
+      <button class="ghost" id="provBtn" onclick="getProvocations()"><i data-lucide="zap" size="15"></i> 발상 자극</button>
     </div>
-
     <div id="doneBanner" class="done-banner" style="display:none">
-      <span class="display">10개 완주</span>
-      파괴 구간(7–10) 아이디어가 금고에, 전체 기록은 히스토리에 저장됐습니다.
-      <div style="margin-top:14px"><button class="ghost" onclick="resetSprint()">새 스프린트 시작</button></div>
+      <span class="display gradient-text">🎉 발상 10개 완주!</span>
+      <p style="color:var(--text2);margin-top:10px;">파괴 구간 아이디어가 보관함에 저장됐습니다.</p>
+      <div style="margin-top:20px;display:flex;justify-content:center;">
+        <button class="ghost" onclick="resetSprint()"><i data-lucide="rotate-ccw" size="15"></i> 새 발상 시작</button>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ===== 금고 ===== -->
+<!-- ===== 보관함 ===== -->
 <section id="vault">
   <div class="sprint-head">
-    <div class="eyebrow">Idea Vault</div>
-    <h2>점수를 매기고, <span class="hl">7점 이상</span>만 검증으로 보냅니다</h2>
-    <p style="font-size:.85rem;color:var(--gray);margin-top:8px">기준: ① 내가 직접 고객인가 ② 1주 안에 테스트 가능한가 ③ AI로 비용 1/10 가능한가 — 각 0~3점<br>「유사 사례 비교」를 누르면 AI가 웹에서 기존 유사 서비스를 찾아 차별점과 빈틈을 분석합니다.</p>
+    <div class="eyebrow">Idea Storage</div>
+    <h2>점수를 매기고,<br><span class="gradient-text">7점 이상</span>만 검증합니다</h2>
+    <p style="font-size:.9rem;color:var(--text2);margin-top:10px;">① 실제 고객인가 ② 1주 내 테스트 가능한가 ③ AI로 비용 감축 가능한가</p>
   </div>
   <div class="vault-toolbar" id="vaultToolbar">
-    <input type="text" id="vaultSearch" placeholder="아이디어·주제 검색" oninput="onVaultSearch(this.value)">
-    <button class="ghost" id="vaultSortBtn" onclick="toggleVaultSort()">정렬: 최신순</button>
+    <div class="input-wrap" style="min-width:180px;">
+      <i data-lucide="search" size="17" style="position:absolute;left:14px;color:var(--text2);"></i>
+      <input type="text" id="vaultSearch" placeholder="아이디어·주제 검색" style="padding-left:42px;" oninput="onVaultSearch(this.value)">
+    </div>
+    <button class="ghost" id="vaultSortBtn" onclick="toggleVaultSort()"><i data-lucide="arrow-up-down" size="15"></i> 최신순</button>
   </div>
   <div id="vaultList"></div>
 </section>
 
-<!-- ===== 검증 보드 ===== -->
+<!-- ===== 시장 검증 ===== -->
 <section id="board">
   <div class="sprint-head">
-    <div class="eyebrow">Validation Board</div>
-    <h2>만들기 전에 <span class="hl">돈 낼 사람</span>부터 찾습니다</h2>
+    <div class="eyebrow">Market Validation</div>
+    <h2>만들기 전에<br><span class="gradient-text">돈 낼 사람</span>부터 찾습니다</h2>
   </div>
   <div class="kanban">
     <div class="col"><h3>가설 <span id="cnt-hypo"></span></h3><div id="col-hypo"></div></div>
@@ -267,21 +551,24 @@ footer{max-width:880px;margin:0 auto;padding:20px;font-size:.75rem;color:var(--g
 <!-- ===== 히스토리 ===== -->
 <section id="history">
   <div class="sprint-head">
-    <div class="eyebrow">History &amp; Stats</div>
-    <h2>쌓인 기록이 <span class="hl">발상 근육</span>의 증거입니다</h2>
+    <div class="eyebrow">History & Stats</div>
+    <h2>쌓인 기록이<br><span class="gradient-text">발상 근육</span>의 증거입니다</h2>
   </div>
   <div class="stats">
-    <div class="stat"><div class="v" id="stSprints">0</div><div class="l">완주 스프린트</div></div>
+    <div class="stat"><div class="v" id="stSprints">0</div><div class="l">완주한 발상</div></div>
     <div class="stat"><div class="v" id="stIdeas">0</div><div class="l">누적 아이디어</div></div>
     <div class="stat"><div class="v" id="stTested">0</div><div class="l">검증 완료</div></div>
     <div class="stat"><div class="v" id="stWinRate">–</div><div class="l">검증 통과율</div></div>
   </div>
   <div class="backup-row">
-    <button class="ghost" onclick="exportData()">⬇ 데이터 백업 (JSON)</button>
-    <button class="ghost" onclick="importFile.click()">⬆ 백업 불러오기</button>
+    <button class="ghost" onclick="exportData()"><i data-lucide="download" size="15"></i> 데이터 백업</button>
+    <button class="ghost" onclick="importFile.click()"><i data-lucide="upload" size="15"></i> 백업 불러오기</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
   </div>
-  <input type="text" id="histSearch" placeholder="주제 검색" style="margin-bottom:16px" oninput="onHistSearch(this.value)">
+  <div class="input-wrap" style="margin-bottom:20px;">
+    <i data-lucide="search" size="17" style="position:absolute;left:14px;color:var(--text2);"></i>
+    <input type="text" id="histSearch" placeholder="주제 검색" style="padding-left:42px;" oninput="onHistSearch(this.value)">
+  </div>
   <div id="histList"></div>
 </section>
 
@@ -289,713 +576,573 @@ footer{max-width:880px;margin:0 auto;padding:20px;font-size:.75rem;color:var(--g
 <section id="product">
   <div class="sprint-head">
     <div class="eyebrow">Productization</div>
-    <h2>검증을 통과했다면, <span class="hl">상품</span>으로 만듭니다</h2>
-    <p style="font-size:.85rem;color:var(--gray);margin-top:8px">검증 보드에서 통과한 아이디어는 자동으로 들어옵니다. 주식트래커처럼 이미 만든 것은 직접 추가하세요.<br>4가지 기준(시장성·수익화·실현가능성·차별화) 12점 만점 중 8점 이상이면 착수를 추천합니다.</p>
+    <h2>검증을 통과했다면,<br><span class="gradient-text">상품</span>으로 만듭니다</h2>
+    <p style="font-size:.9rem;color:var(--text2);margin-top:10px;">시장성·수익화·실현성·차별화 — 12점 중 8점 이상 착수 추천</p>
   </div>
-
-  <div class="manual-row" id="manualRow" style="display:none">
-    <input type="text" id="manualInput" placeholder="예: AI 주식트래커 — 학습용으로 만든 걸 상품화 검토" maxlength="120">
-    <button class="primary" onclick="addProductManual()">추가</button>
+  <div class="manual-row" id="manualRow" style="display:none;">
+    <div class="input-wrap">
+      <input type="text" id="manualInput" placeholder="예: AI 주식트래커" maxlength="120" oninput="updateCharCount(this,'manualCount')">
+      <span class="char-count" id="manualCount">0 / 120</span>
+    </div>
+    <button class="primary" onclick="addProductManual()"><i data-lucide="plus" size="17"></i> 추가</button>
   </div>
-  <div style="margin-bottom:20px" id="manualToggleWrap">
-    <button class="ghost" onclick="toggleManualRow()">+ 이미 만든 아이디어 직접 추가</button>
+  <div style="margin-bottom:28px;text-align:center;" id="manualToggleWrap">
+    <button class="ghost" onclick="toggleManualRow()"><i data-lucide="file-plus" size="15"></i> 직접 아이디어 추가</button>
   </div>
-
   <div id="productList"></div>
 </section>
 
 </main>
 
-<footer>발상 연구소 · 데이터는 이 브라우저에 저장됩니다 — 주 1회 백업을 권장합니다 · 매일 10분, 한 가지 불편함</footer>
+<footer>
+  <i data-lucide="shield-check" size="14"></i>
+  데이터는 브라우저에 안전하게 저장됩니다 · 매일 10분, 하나의 불편함
+</footer>
 
-<!-- 가설 다이얼로그 -->
+<!-- ── 다이얼로그 ── -->
 <dialog id="hypoDialog">
   <h3>검증 가설 세우기</h3>
   <p class="small">형식: "____한 사람은, ____에 월 ____원을 낼 것이다"</p>
-  <textarea id="hypoText" placeholder="예: 40대 자영업자는 AI 주식 요약 리포트에 월 9,900원을 낼 것이다"></textarea>
+  <textarea id="hypoText" placeholder="예: 40대 자영업자는 AI 리포트에 월 9,900원을 낼 것이다"></textarea>
   <div class="row">
     <button class="ghost" onclick="hypoDialog.close()">취소</button>
-    <button class="primary" onclick="saveHypo()">검증 보드로 보내기</button>
+    <button class="primary" onclick="saveHypo()"><i data-lucide="send" size="15"></i> 시장 검증으로</button>
   </div>
 </dialog>
 
-<!-- 기각 사유 다이얼로그 -->
 <dialog id="rejectDialog">
   <h3>기각 사유 기록</h3>
-  <p class="small">실패에서 배운 한 줄이 다음 아이디어의 출발점이 됩니다.</p>
-  <textarea id="rejectText" placeholder="예: 무료 대안이 이미 충분해서 지불 의사가 없었음"></textarea>
+  <p class="small">실패에서 배운 점이 다음의 출발점입니다.</p>
+  <textarea id="rejectText" placeholder="예: 무료 대안이 이미 충분함"></textarea>
   <div class="row">
     <button class="ghost" onclick="rejectDialog.close()">취소</button>
-    <button class="primary" onclick="confirmReject()">기각 확정</button>
+    <button class="primary" style="background:var(--danger);" onclick="confirmReject()"><i data-lucide="x-circle" size="15"></i> 기각 확정</button>
   </div>
 </dialog>
 
-<!-- 설정 다이얼로그 -->
 <dialog id="settingsDialog">
   <h3>설정</h3>
-  <p class="small">Claude.ai 안에서 쓸 때는 비워 두면 됩니다. GitHub Pages 등 외부에서 AI 기능(⚡ 자극, 🧠 전문가 평가, 🔍 비교/선조사)을 쓰려면 Anthropic API 키를 입력하세요. 키는 이 브라우저에만 저장됩니다. 공용 PC에서는 입력하지 마세요.</p>
-  <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="margin:10px 0">
+  <p class="small">Claude.ai 내에서는 비워도 됩니다. GitHub Pages 등 외부 배포 시 Anthropic API 키를 입력하면 AI 기능이 활성화됩니다.</p>
+  <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="margin:14px 0;">
   <div class="row">
     <button class="ghost" onclick="settingsDialog.close()">닫기</button>
-    <button class="primary" onclick="saveKey()">저장</button>
+    <button class="primary" onclick="saveKey()"><i data-lucide="save" size="15"></i> 저장</button>
   </div>
-  <div style="border-top:1.5px dashed var(--line);margin-top:16px;padding-top:14px">
-    <p class="small">지금 보이는 10개 샘플 아이디어와 주식트래커 예시는 사용법을 보여주는 데모 데이터입니다. 본인 데이터로만 새로 시작하려면 아래를 누르세요.</p>
-    <button class="ghost" onclick="resetToEmpty()" style="margin-top:8px">🗑 샘플 데이터 지우고 빈 상태로 시작</button>
-  </div>
+  <hr class="sep">
+  <button class="ghost" style="color:var(--danger);border-color:var(--danger);width:100%;justify-content:center;" onclick="resetToEmpty()">
+    <i data-lucide="alert-triangle" size="15"></i> 샘플 데이터 지우고 새로 시작
+  </button>
 </dialog>
 
 <script>
-/* ========== 저장소 어댑터: Claude 아티팩트 ↔ GitHub Pages 모두 지원 ========== */
+/* ══════════════════════════════════════════════════════
+   발상 연구소 — 완전판 v3.0
+   버그 8건 수정 + 세로/가로 모드 최적화
+══════════════════════════════════════════════════════ */
+
+/* ── 저장소 어댑터 ── */
 const store = {
-  async get(k){
-    if(window.storage){ try{ const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; }catch(e){ return null; } }
-    try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; }
-  },
-  async set(k,v){
-    if(window.storage){ try{ await window.storage.set(k, JSON.stringify(v)); return; }catch(e){} }
-    try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
-  }
+  async get(k){ if(window.storage){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}catch(e){return null;}} try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;} },
+  async set(k,v){ if(window.storage){try{await window.storage.set(k,JSON.stringify(v));return;}catch(e){}} try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
 };
 
+/* ── 전역 상태 ── */
 let state = { streak:0, lastDay:null, sprint:null, vault:[], board:[], history:[], product:[], apiKey:'' };
-let pendingBoardIdea = null, pendingRejectId = null;
-let vaultSort = 'recent', vaultQuery = '', histQuery = '';
+let pendingBoardIdea=null, pendingRejectId=null;
+let vaultSort='recent', vaultQuery='', histQuery='';
 
+/* ── 유틸 ── */
 const $ = id => document.getElementById(id);
 const today = () => new Date().toISOString().slice(0,10);
-const daysSince = (dateStr) => Math.max(0, Math.floor((Date.now() - new Date(dateStr+'T00:00:00').getTime())/86400000));
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const daysSince = (d) => Math.max(0, Math.floor((Date.now()-new Date(d+'T00:00:00').getTime())/86400000));
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// FIX 8: float ID → 정수 ID
+const newId = () => Math.round(Date.now() + Math.random() * 9999);
+const dAgo = (n) => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); };
 
 const QUESTIONS = [
-  "매주 반복하는 일 중 가장 시간이 아까운 것은?",
-  "우리 동네/아파트에서 모두가 불평하지만 아무도 안 고치는 것은?",
-  "내 직장에서 신입이 가장 헤매는 일은?",
+  "반복하는 일 중 시간이 가장 아까운 것은?",
+  "모두 불평하지만 아무도 안 고치는 것은?",
+  "신입이 가장 헤매는 일은?",
   "돈을 내면서도 불만족스러운 서비스는?",
-  "10년째 똑같은 방식으로 돌아가는 업무는?",
-  "사람들이 엑셀로 억지로 해결하고 있는 일은?",
-  "전화나 방문을 해야만 처리되는 일 중 짜증나는 것은?",
-  "교육·강의에서 듣는 사람들이 가장 지루해하는 순간은?",
-  "내가 두 번 이상 똑같이 설명한 적 있는 것은?",
-  "주식/투자에서 매번 놓쳐서 아까운 정보는?",
+  "엑셀로 억지로 해결하고 있는 일은?",
+  "전화나 방문해야만 처리되는 짜증나는 일은?",
+  "강의에서 사람들이 가장 지루해하는 순간은?",
+  "주식/투자에서 매번 놓치는 정보는?",
   "관리비 고지서에서 이해 안 되는 항목은?",
-  "내가 지금도 종이로 하고 있는 일은?"
+  "AI 교육을 들어도 며칠 뒤 다 까먹는 이유는?"
 ];
 
 const GUIDE_STEPS = [
-  {title:"MVP 핵심 기능 정의", prompt:"딱 1개 핵심 기능만 적어보세요. 나머지는 다음 버전으로 미루세요."},
-  {title:"가격 책정", prompt:"얼마를 받을까요? 무료 대안과 비교해 가격을 정당화하는 한 줄을 적어보세요."},
-  {title:"첫 고객 10명 확보 계획", prompt:"누구에게, 어떤 채널로 처음 알릴지 적어보세요. (지인/커뮤니티/블로그/SNS 등)"},
-  {title:"결제 &amp; 배포 방법", prompt:"결제는 어떻게 받을까요? (카카오페이 송금, 토스페이먼츠, 앱스토어 등) 배포 채널도 함께 적어보세요."},
-  {title:"사업자 등록 시점 체크", prompt:"매출이 발생하면 사업자 등록이 필요해집니다. 현재 상태와 다음 행동을 적어보세요."},
-  {title:"특허·상표 보호 검토", prompt:"브랜드명·서비스명은 키프리스(kipris.or.kr)에서 동일·유사 상표를 먼저 검색하세요. 기술적 차별점이 있다면 특허 출원 전에는 외부에 공개하지 마세요(공개 후엔 신규성 상실로 출원이 막힐 수 있음). 아래 AI 선조사는 참고용이며, 법적 확인은 키프리스 직접 검색 또는 변리사 상담으로 반드시 재확인하세요."}
+  {title:"MVP 핵심 기능 정의", prompt:"딱 1개 핵심 기능만 적으세요. 나머지는 다음 버전으로."},
+  {title:"가격 책정", prompt:"무료 대안과 비교해 가격 정당화 한 줄을 적으세요."},
+  {title:"첫 고객 10명 확보 계획", prompt:"누구에게, 어떤 채널로 알릴지 적으세요."},
+  {title:"결제 & 배포 방법", prompt:"결제(카카오페이/토스 등)와 배포 채널을 적으세요."},
+  {title:"사업자 등록 시점", prompt:"매출 발생 시 다음 행동을 적으세요."},
+  {title:"특허·상표 검토", prompt:"키프리스(kipris.or.kr)에서 유사 상표를 먼저 검색하세요."}
 ];
 
-/* ========== 데모 시드 데이터: 10개 시뮬레이션 아이디어 + 주식트래커 샘플 ========== */
-const dAgo = (n) => { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); };
-const TOPICS = [
-  {topic:'신입 판매직원이 매장 업무를 익히는 데 너무 오래 걸린다', ideas:[
-    '선배 1:1 멘토링 강화','체크리스트 인쇄물 배포','동영상 매뉴얼 제작','주간 퀴즈로 점검','신입 전용 단체 채팅방 운영','업무 매뉴얼 PDF로 정리',
-    'AI 챗봇이 24시간 신입 질문에 즉답','매장 CCTV 영상에서 베스트 응대 장면을 자동으로 클립화해 학습자료로 사용','신입끼리 서로 가르치는 역멘토링 게임화(포인트제)','고객 응대를 녹음해 AI가 자동으로 피드백 점수화'
-  ]},
-  {topic:'관리비 고지서를 입주민들이 이해하지 못해 민원이 반복된다', ideas:[
-    '고지서에 설명 문구 추가','별도 안내문 배포','관리사무소 방문 상담 시간 확대','입주자대표회의에서 직접 설명','단체 채팅방에 FAQ 게시','고지서 항목별 색상 구분',
-    '고지서 사진 찍으면 AI가 항목별로 설명해주는 챗봇','관리비를 0원처럼 보이게 — 실제 사용량만 큰 글씨로, 나머지는 접어서','매달 모든 세대에 1분짜리 음성 안내 자동 발송','관리비 변동 이유를 전월 대비 그래프로 자동 생성해 발송'
-  ]},
-  {topic:'전기기타 초보자는 며칠 연습하다 포기한다', ideas:[
-    '연습 알림 푸시 설정','진도 체크리스트 작성','유튜브 추천 영상 모음','코드표 인쇄해 벽에 붙이기','동기부여 문구 표시','연습 일지 작성',
-    '하루라도 연습을 안 하면 친구에게 자동으로 카톡 발송','연습 영상을 찍으면 AI가 코드 잡는 손가락 위치를 교정해준다','연습 30일을 완주하면 보증금이 환급되는 챌린지형 결제','좋아하는 노래 한 곡만 먼저 완성하는 역순 커리큘럼'
-  ]},
-  {topic:'강의 PPT를 매번 처음부터 만드느라 시간이 너무 걸린다', ideas:[
-    '기존 템플릿 재사용','디자인 가이드 문서화','외주 디자이너 활용','공통 슬라이드 라이브러리 구축','Canva 템플릿 구매','팀원과 슬라이드 분담 제작',
-    '강의 주제만 던지면 AI가 전체 PPT 초안을 자동 생성','과거 강의 100개를 학습해 내 스타일 그대로 만드는 AI','PPT 없이 AI가 실시간으로 화면에 핵심만 띄워주는 방식','만든 PPT를 다른 강사들에게 판매하는 마켓플레이스'
-  ]},
-  {topic:'주식 매매 후 왜 그렇게 판단했는지 기록이 안 남아 같은 실수를 반복한다', ideas:[
-    '메모장에 기록','엑셀로 정리','캡처해서 모아두기','일기장에 손글씨로 기록','증권사 자동일지 기능 사용','매주 복기 시간을 따로 정하기',
-    '매수 버튼을 누르는 순간 이유를 강제로 입력해야 진행되는 잠금 기능','AI가 과거 패턴을 보고 "또 그 실수입니다"라고 경고','손실 난 매매만 모아 자동으로 반성문을 생성','같은 종목을 재검색할 때 과거 기록을 자동으로 이어붙이는 사이클 관리'
-  ]},
-  {topic:'아파트 공사 현장설명서를 관리소가 안 줘서 입주민이 검증할 방법이 없다', ideas:[
-    '공문으로 요청','입주자대표회의에서 의결','변호사 자문','타 아파트 사례 조사','관리감독 기관에 문의','게시판에 공개 요구문 게시',
-    '동대표가 공사 현장을 매일 사진으로 기록해 공개 아카이브 구축','미지급 공사비를 협상 레버리지로 활용해 서류 제출을 조건화','입주민 전체 서명을 받는 온라인 서명 폼 제작','비슷한 처지의 다른 아파트 동대표들과 정보 공유 네트워크 구성'
-  ]},
-  {topic:'우수매장 사례를 모아도 다른 매장이 읽지 않는다', ideas:[
-    'PDF로 정리해 배포','단체 채팅방에 공유','월례 회의에서 발표','포스터로 출력해 게시','우수사례 시상식 개최','담당자에게 1:1로 전달',
-    '우수사례를 1분짜리 쇼츠 영상으로 자동 변환','매장끼리 경쟁하는 랭킹보드 게임화','AI가 매장 데이터를 보고 "이 매장에 맞는 사례"만 추천','우수사례를 따라한 매장에 포인트를 지급하는 리워드 제도'
-  ]},
-  {topic:'블로그 글을 써도 검색 노출이 안 된다', ideas:[
-    '키워드를 더 찾아보기','글 길이를 늘리기','이미지 추가','발행 시간을 바꿔보기','다른 블로그 벤치마킹','SEO 강의 수강',
-    'AI가 실시간 검색 트렌드를 보고 키워드를 자동 추천','한 주제를 10개의 변형 제목으로 동시에 발행해 A/B 테스트','댓글에 달린 질문을 모아 다음 글 주제로 자동 변환','글을 쓰기 전에 AI가 "이 제목이면 몇 명이 클릭할지" 예측 점수를 부여'
-  ]},
-  {topic:'장기수선충당금 계산이 복잡해서 입주민들이 신뢰하지 않는다', ideas:[
-    '계산 근거를 문서화','회계사 검토 요청','설명회 개최','엑셀 계산식 공개','타 아파트 비교 자료 제공','관리소장과 면담',
-    '세대별 충당금을 입력하면 자동으로 적정성을 검증해주는 계산기','충당금 사용 내역을 실시간 대시보드로 공개','충당금 부족분을 시뮬레이션으로 미리 보여주는 예측 도구','다른 아파트들과 충당금 적립률을 비교하는 익명 벤치마크'
-  ]},
-  {topic:'AI 활용 교육을 들어도 며칠 지나면 다 까먹는다', ideas:[
-    '요약 자료 배포','복습 퀴즈 제공','실습 과제 부여','후속 모임 개최','1:1 코칭 제공','수료증 발급으로 동기부여',
-    '교육이 끝난 뒤 매일 1개씩 마이크로 복습 알림 발송','배운 프롬프트를 실제 업무에 적용했는지 인증샷 챌린지','수강생들이 서로 써본 프롬프트를 공유하는 커뮤니티 자동 개설','교육 내용을 AI 챗봇으로 만들어 언제든 질문하면 답해주는 방식'
-  ]}
-];
+/* ── 토스트 ── */
+function showToast(msg, type='success') {
+  const c=$('toast-container'); const t=document.createElement('div'); t.className=`toast ${type}`;
+  const icon=type==='success'?'check-circle':'alert-circle';
+  t.innerHTML=`<i data-lucide="${icon}" size="17"></i><span>${esc(msg)}</span>`;
+  c.appendChild(t); lucide.createIcons({root:t}); setTimeout(()=>t.remove(),2900);
+}
+
+/* ── 글자 수 ── */
+function updateCharCount(el,cId){ const c=$(cId); if(c) c.textContent=`${el.value.length} / ${el.maxLength}`; }
+
+/* ── textarea 자동 높이 ── */
+document.addEventListener('input', e=>{ if(e.target.tagName==='TEXTAREA'){ e.target.style.height='auto'; e.target.style.height=e.target.scrollHeight+'px'; } });
+
+/* ── 다이얼로그 바깥 클릭 닫기 ── */
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{
+  const r=d.getBoundingClientRect();
+  if(!(r.top<=e.clientY&&e.clientY<=r.top+r.height&&r.left<=e.clientX&&e.clientX<=r.left+r.width)) d.close();
+}));
+
+/* ── 씨드 데이터 (샘플) ── */
 function buildSeedData(){
-  const history = TOPICS.map((t,i)=>({ date: dAgo(9-i), topic:t.topic, ideas:t.ideas }));
-  const vault = [
-    { id:1001, txt:TOPICS[1].ideas[6], topic:TOPICS[1].topic, date:dAgo(8), s:[3,1,2], compare:null, expert:null },
-    { id:1002, txt:TOPICS[2].ideas[7], topic:TOPICS[2].topic, date:dAgo(7), s:[3,1,1], compare:null, expert:null },
-    { id:1003, txt:TOPICS[6].ideas[6], topic:TOPICS[6].topic, date:dAgo(3), s:[2,2,3], compare:null, expert:null }
-  ];
-  const board = [
-    { id:2001, txt:TOPICS[0].ideas[6], hyp:'매장 점장은 신입 온보딩 시간을 줄여주는 AI 챗봇에 월 2만원을 낼 것이다', col:'test', win:false, reason:'', date:dAgo(9), testDate:dAgo(5), movedToProduct:false },
-    { id:2002, txt:TOPICS[8].ideas[6], hyp:'동대표는 충당금 검증 계산기 1회 이용에 5만원을 낼 것이다', col:'test', win:false, reason:'', date:dAgo(12), testDate:dAgo(9), movedToProduct:false },
-    { id:2003, txt:TOPICS[7].ideas[6], hyp:'블로그 운영자는 키워드 추천 도구에 월 9,900원을 낼 것이다', col:'hypo', win:false, reason:'', date:dAgo(2), testDate:null, movedToProduct:false },
-    { id:2004, txt:TOPICS[9].ideas[6], hyp:'교육 수료생은 복습 알림 서비스에 월 4,900원을 낼 것이다', col:'hypo', win:false, reason:'', date:dAgo(1), testDate:null, movedToProduct:false },
-    { id:2005, txt:TOPICS[3].ideas[6], hyp:'강사는 PPT 자동생성 도구에 월 1만원을 낼 것이다', col:'done', win:true, reason:'', date:dAgo(14), testDate:dAgo(11), movedToProduct:false },
-    { id:2006, txt:TOPICS[5].ideas[6], hyp:'입주민은 공사 현장 아카이브 열람에 비용을 낼 것이다', col:'done', win:false, reason:'입주민 절반이 사진 찍는 걸 부담스러워해서 참여율이 낮았음', date:dAgo(15), testDate:dAgo(12), movedToProduct:false },
-    { id:2007, txt:TOPICS[4].ideas[9], hyp:'구체적인 구독 의향이 있는 사람은 월 4,900원을 낼 것이다', col:'done', win:true, reason:'', date:dAgo(18), testDate:dAgo(14), movedToProduct:true }
-  ];
-  const product = [
-    { id:3001, txt:'AI 주식트래커 — 학습용으로 만든 사이클 기반 매매기록 도구', hyp:'구체적인 구독 의향이 있는 사람은 월 4,900원을 낼 것이다', source:'auto', date:dAgo(3),
-      scores:[1,1,3,2],
-      guide:[
-        {done:true, note:'사이클 자동 연결 + AI 매매 판단 코칭 한 줄로 좁히기'},
-        {done:true, note:'기록 기능은 무료, AI 코칭만 월 3,900~4,900원 (추정, 확인 필요)'},
-        {done:false, note:'PS&M 교육 채널 인맥, 생각콩 블로그 독자, 주식 커뮤니티'},
-        {done:false, note:'베타는 카카오페이 송금, 검증되면 토스페이먼츠 연동'},
-        {done:false, note:'매출 발생 전까지 불필요, 유료 전환 시점에 검토'},
-        {done:false, note:''}
-      ],
-      expert:[
-        {persona:'시장분석 전문가', score:1, reason:'존버노트·Trady·살래말래 등 무료 매매일지 앱과 증권사 자동일지 기능이 이미 다수 존재해 기본 기록 기능은 레드오션'},
-        {persona:'투자자(VC)', score:1, reason:'현재 무료·단일 사용자용이며 수익모델이 미정, 비교 앱들도 대부분 무료라 지불 의사를 끌어낼 명분이 약함'},
-        {persona:'기술/PM 전문가', score:3, reason:'이미 완성돼 라이브 배포까지 끝났고 KRX 2,756개 종목 데이터를 내장한 단일 파일 구조로 1인 운영 가능성이 증명됨'},
-        {persona:'특허·IP 전문가', score:2, reason:'사이클 자동연결은 일반적 UX 패턴이라 특허성은 낮지만 "생각콩" 브랜드명은 직접 충돌이 발견되지 않아 상표 출원 시도는 가능'}
-      ],
-      ipCheck:'[검색 결과] "생각콩" 명칭의 동일 상표·서비스는 일반 웹검색에서 발견되지 않음 (2026.06 기준)\n[주의사항] 일반 웹검색은 정식 상표 데이터베이스가 아니므로 참고용입니다\n[다음 행동] 키프리스(kipris.or.kr)에서 직접 재확인 권장, 출원 전 변리사 상담 권장'
-    }
-  ];
-  return { streak:10, lastDay: dAgo(0), sprint:null, vault, board, history, product, apiKey:'' };
+  return {
+    streak:3, lastDay:dAgo(0), sprint:null, apiKey:'',
+    vault:[
+      {id:newId(),txt:'고지서 사진 찍으면 AI가 항목별로 설명해주는 챗봇',topic:'관리비 이해 불가',date:dAgo(2),s:[3,1,2],compare:null,expert:null},
+      {id:newId(),txt:'연습 영상을 찍으면 AI가 코드 잡는 손가락을 교정해준다',topic:'기타 입문자가 며칠만에 포기한다',date:dAgo(3),s:[2,2,1],compare:null,expert:null}
+    ],
+    board:[
+      {id:newId(),txt:'AI 챗봇 점장 대행 — 신입 온보딩 Q&A',hyp:'점장은 신입 온보딩 시간 절약에 월 2만원을 낼 것이다',col:'test',win:false,reason:'',date:dAgo(5),testDate:dAgo(2),movedToProduct:false}
+    ],
+    history:[], product:[]
+  };
 }
 
-/* ========== Claude API (Claude 아티팩트: 키 불필요 / 외부: 본인 키) ========== */
+/* ── Claude API ── */
 async function askClaude(prompt, useSearch){
-  const headers = {"Content-Type":"application/json"};
-  if(state.apiKey){
-    headers["x-api-key"] = state.apiKey;
-    headers["anthropic-version"] = "2023-06-01";
-    headers["anthropic-dangerous-direct-browser-access"] = "true";
-  }
-  const body = {
-    model:"claude-sonnet-4-20250514",
-    max_tokens:1000,
-    messages:[{role:"user",content:prompt}]
-  };
-  if(useSearch) body.tools = [{type:"web_search_20250305", name:"web_search"}];
-  const res = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers,body:JSON.stringify(body)});
+  const h={"Content-Type":"application/json"};
+  if(state.apiKey){h["x-api-key"]=state.apiKey;h["anthropic-version"]="2023-06-01";h["anthropic-dangerous-direct-browser-access"]="true";}
+  const body={model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]};
+  if(useSearch) body.tools=[{type:"web_search_20250305",name:"web_search"}];
+  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:h,body:JSON.stringify(body)});
   if(!res.ok) throw new Error("API "+res.status);
-  const data = await res.json();
-  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+  const d=await res.json();
+  return (d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
 }
 
+/* ── 로드 / 저장 ── */
 async function load(){
-  const saved = await store.get('lab-state');
-  if(saved) state = Object.assign(state, saved);
-  else state = buildSeedData();
-  $('apiKeyInput').value = state.apiKey || '';
-  rollSuggest();
-  renderAll();
+  const s=await store.get('lab-state');
+  if(s) state=Object.assign(state,s); else state=buildSeedData();
+  window._labState=state; window.state=state;
+  $('apiKeyInput').value=state.apiKey||'';
+  rollSuggest(); renderAll();
 }
-function resetToEmpty(){
-  if(!confirm('샘플 데이터(10개 시뮬레이션 + 주식트래커)를 모두 지우고 빈 상태로 시작합니다. 되돌릴 수 없습니다. 계속할까요?')) return;
-  const keptKey = state.apiKey;
-  state = { streak:0, lastDay:null, sprint:null, vault:[], board:[], history:[], product:[], apiKey:keptKey };
-  save(); renderAll(); settingsDialog.close();
-}
-function save(){ store.set('lab-state', state); renderHomeBanner(); }
+window._labSetState=function(d){ state=Object.assign(state,d); window._labState=state; window.state=state; $('apiKeyInput').value=state.apiKey||''; renderAll(); };
+window.labStart=async function(){ await load(); if(typeof lucide!=='undefined') lucide.createIcons(); };
+function save(){ store.set('lab-state',state); window._labState=state; window.state=state; if(window.saveToCloud) window.saveToCloud(); renderHomeBanner(); }
+function saveKey(){ state.apiKey=$('apiKeyInput').value.trim(); save(); settingsDialog.close(); showToast('설정 저장됨'); }
+function resetToEmpty(){ if(!confirm('샘플 데이터를 지우고 처음부터 시작할까요?')) return; state={streak:0,lastDay:null,sprint:null,vault:[],board:[],history:[],product:[],apiKey:state.apiKey}; save(); renderAll(); showToast('초기화 완료'); settingsDialog.close(); }
+
+/* ── 홈 배너 ── */
 function renderHomeBanner(){
-  const banner = $('homeBanner'); if(!banner) return;
-  const testCards = state.board.filter(c=>c.col==='test' && c.testDate);
-  let stalled = null;
-  testCards.forEach(c=>{ const d=daysSince(c.testDate); if(d>=7 && (!stalled || d>daysSince(stalled.testDate))) stalled=c; });
-  const ready = state.vault.filter(it=> (it.s[0]+it.s[1]+it.s[2])>=7);
-  const doneToday = state.lastDay === today();
-
-  let htag, hmain, hsub;
-  if(stalled){
-    htag = '오늘의 추천 행동';
-    hmain = `"${stalled.txt}" 테스트가 ${daysSince(stalled.testDate)}일째 멈춰 있습니다`;
-    hsub = '검증 보드에서 통과·기각을 결정하세요. 결론 없이 오래 두면 다음 아이디어로 넘어가기 어려워집니다.';
-  } else if(ready.length){
-    htag = '오늘의 추천 행동';
-    hmain = `금고에 7점 이상 미처리 아이디어 ${ready.length}개가 있습니다`;
-    hsub = '금고 탭에서 "검증 보내기"를 눌러 가설을 세워보세요.';
-  } else if(!doneToday){
-    htag = '오늘의 추천 행동';
-    hmain = '오늘은 아직 스프린트를 시작하지 않았습니다';
-    hsub = '아래에서 불편함 하나를 골라 10개를 채워보세요.';
-  } else {
-    htag = '오늘 완주했습니다';
-    hmain = '내일 또 새 스프린트로 만나요';
-    hsub = `누적 ${state.history.length}개 스프린트 · 연속 ${state.streak}일`;
-  }
-
-  banner.innerHTML = `<div class="home-card">
-    <div class="htag">${htag}</div>
-    <div class="hmain">${esc(hmain)}</div>
-    <div class="hsub">${esc(hsub)}</div>
-    <div class="home-stats">
-      <span>연속 <b>${state.streak}</b>일</span>
-      <span>완주 <b>${state.history.length}</b>건</span>
-      <span>검증통과 <b>${state.board.filter(c=>c.win).length}</b>건</span>
-      <span>상품화 진행 <b>${state.product.length}</b>건</span>
-    </div>
-  </div>`;
+  const b=$('homeBanner'); if(!b) return;
+  const stalled=state.board.filter(c=>c.col==='test'&&c.testDate).sort((a,z)=>daysSince(z.testDate)-daysSince(a.testDate)).find(c=>daysSince(c.testDate)>=7);
+  const ready=state.vault.filter(i=>(i.s[0]+i.s[1]+i.s[2])>=7);
+  let icon,tag,m,sub;
+  if(stalled){icon='alert-circle';tag='액션 필요';m=`"${stalled.txt.slice(0,28)}…" 검증 ${daysSince(stalled.testDate)}일째 멈춤`;sub='검증 탭에서 통과/기각 결정을 내리세요.';}
+  else if(ready.length){icon='inbox';tag='액션 필요';m=`보관함 대기 ${ready.length}건 — 7점 이상`;sub='시장 검증을 위한 가설을 세워보세요.';}
+  else if(state.lastDay!==today()){icon='lightbulb';tag='오늘의 과제';m='아이디어 발상 미완료';sub='불편함을 하나 골라 10개를 채워보세요.';}
+  else{icon='check-circle';tag='오늘 완주';m=`연속 ${state.streak}일 달성!`;sub='내일도 새로운 불편함으로 돌아오세요.';}
+  b.innerHTML=`<div class="home-card"><div class="home-card-icon"><i data-lucide="${icon}" size="22" style="color:var(--blue)"></i></div><div class="home-card-body"><div class="htag">${tag}</div><div class="hmain">${esc(m)}</div><div class="hsub">${esc(sub)}</div></div></div>`;
+  lucide.createIcons();
 }
-function saveKey(){ state.apiKey = $('apiKeyInput').value.trim(); save(); settingsDialog.close(); }
 
-/* ---------- 탭 ---------- */
+/* ── 탭 ── */
 document.querySelectorAll('nav button').forEach(b=>{
-  b.onclick = ()=>{
-    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('section').forEach(x=>x.classList.remove('show'));
-    b.classList.add('active');
-    $(b.dataset.tab).classList.add('show');
-  };
+  b.onclick=()=>{ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active')); document.querySelectorAll('section').forEach(x=>x.classList.remove('show')); b.classList.add('active'); $(b.dataset.tab).classList.add('show'); };
 });
 
-/* ---------- 주제 추천 ---------- */
-function rollSuggest(){ $('suggestQ').textContent = QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)]; }
-function fillSuggest(){ $('topicInput').value = $('suggestQ').textContent; $('topicInput').focus(); }
+/* ── 주제 추천 ── */
+function rollSuggest(){ $('suggestQ').textContent=QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)]; }
+function fillSuggest(){ $('topicInput').value=$('suggestQ').textContent; updateCharCount($('topicInput'),'topicCount'); $('topicInput').focus(); }
 
-/* ---------- 스프린트 ---------- */
-function startSprint(){
-  const t = $('topicInput').value.trim();
-  if(!t){ $('topicInput').focus(); return; }
-  state.sprint = { topic:t, date:today(), ideas:[] };
-  $('aiProvBox').innerHTML='';
-  save(); renderSprint();
-}
+/* ── 스프린트 ── */
+function startSprint(){ const t=$('topicInput').value.trim(); if(!t) return $('topicInput').focus(); state.sprint={topic:t,date:today(),ideas:[]}; $('aiProvBox').innerHTML=''; save(); renderSprint(); }
 function addIdea(){
-  const v = $('ideaInput').value.trim();
-  if(!v || !state.sprint || state.sprint.ideas.length>=10) return;
-  state.sprint.ideas.push(v);
-  $('ideaInput').value='';
-
+  const v=$('ideaInput').value.trim(); if(!v||!state.sprint||state.sprint.ideas.length>=10) return;
+  state.sprint.ideas.push(v); $('ideaInput').value=''; updateCharCount($('ideaInput'),'ideaCount');
   if(state.sprint.ideas.length===10){
-    state.sprint.ideas.slice(6).forEach(txt=>{
-      state.vault.push({ id:Math.round(Date.now()+Math.random()*1000), txt, topic:state.sprint.topic, date:today(), s:[0,0,0], compare:null, expert:null });
-    });
-    state.history.push({ date:today(), topic:state.sprint.topic, ideas:[...state.sprint.ideas] });
-    if(state.lastDay !== today()){
-      const y = new Date(); y.setDate(y.getDate()-1);
-      state.streak = (state.lastDay === y.toISOString().slice(0,10)) ? state.streak+1 : 1;
-      state.lastDay = today();
-    }
+    // FIX 8: 정수 ID 사용
+    state.sprint.ideas.slice(6).forEach(txt=>state.vault.push({id:newId(),txt,topic:state.sprint.topic,date:today(),s:[0,0,0],compare:null,expert:null}));
+    state.history.push({date:today(),topic:state.sprint.topic,ideas:[...state.sprint.ideas]});
+    if(state.lastDay!==today()){ state.streak=(state.lastDay===dAgo(1))?state.streak+1:1; state.lastDay=today(); }
+    showToast('발상 완주! 🎉');
   }
-  save(); renderSprint(); renderVault(); renderHistory(); renderStreak();
+  save(); renderAll();
 }
-$('ideaInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addIdea(); });
-$('topicInput').addEventListener('keydown', e=>{ if(e.key==='Enter') startSprint(); });
-
-function resetSprint(){ state.sprint=null; $('aiProvBox').innerHTML=''; save(); renderSprint(); }
+$('ideaInput').addEventListener('keydown',e=>{if(e.key==='Enter')addIdea();});
+$('topicInput').addEventListener('keydown',e=>{if(e.key==='Enter')startSprint();});
+function resetSprint(){ state.sprint=null; $('aiProvBox').innerHTML=''; $('topicInput').value=''; updateCharCount($('topicInput'),'topicCount'); save(); renderSprint(); }
 
 function renderSprint(){
-  const sp = state.sprint;
-  $('topicArea').style.display = sp ? 'none':'block';
-  $('sprintArea').style.display = sp ? 'block':'none';
-  if(!sp) return;
-  $('topicLabel').textContent = sp.topic;
-  const n = sp.ideas.length;
-  $('rail').innerHTML = Array.from({length:10},(_,i)=>`<div class="slot ${i>=6?'zone':''} ${i<n?'fill':''}"></div>`).join('');
-  $('ideaList').innerHTML = sp.ideas.map((t,i)=>`<li class="${i>=6?'zone':''}"><span class="num">${i+1}</span><span>${esc(t)}</span></li>`).join('');
-  $('zoneBanner').style.display = (n>=6 && n<10) ? 'block':'none';
-  $('ideaInputRow').style.display = n<10 ? 'flex':'none';
-  $('doneBanner').style.display = n>=10 ? 'block':'none';
-  const nn = $('nextNum'); nn.textContent = n+1;
-  nn.className = 'num' + (n>=6?' zone':'');
+  const sp=state.sprint; $('topicArea').style.display=sp?'none':'block'; $('sprintArea').style.display=sp?'block':'none'; if(!sp) return;
+  $('topicLabel').textContent=sp.topic; const n=sp.ideas.length;
+  $('rail').innerHTML=Array.from({length:10},(_,i)=>`<div class="slot ${i>=6?'zone':''} ${i<n?'fill':''}"></div>`).join('');
+  $('ideaList').innerHTML=sp.ideas.map((t,i)=>`<li class="${i>=6?'zone':''}"><span class="num">${i+1}</span><span>${esc(t)}</span></li>`).join('');
+  $('zoneBanner').style.display=(n>=6&&n<10)?'flex':'none';
+  $('ideaInputRow').style.display=n<10?'flex':'none';
+  $('doneBanner').style.display=n>=10?'block':'none';
+  $('nextNum').textContent=n+1; $('nextNum').className='num'+(n>=6?' zone':'');
+  if(n<10) setTimeout(()=>$('ideaInput').focus(),50);
+  lucide.createIcons();
 }
 
-/* ---------- AI 발상 자극 ---------- */
+/* ── AI 발상 자극 (FIX 5: 프롬프트 강화) ── */
 async function getProvocations(){
   if(!state.sprint) return;
-  const btn = $('provBtn');
-  btn.disabled = true; btn.textContent = '⚡ 생각 중...';
-  const sp = state.sprint;
-  const prompt = `당신은 파괴적 혁신 발상 코치입니다. 사용자가 아이디어 스프린트 중 막혔습니다.
-주제(불편함): "${sp.topic}"
-지금까지 나온 아이디어: ${sp.ideas.map((t,i)=>`${i+1}. ${t}`).join(' / ') || '아직 없음'}
+  const btn=$('provBtn'); btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
+  // FIX 5: 구조화된 상세 프롬프트
+  const prompt=`당신은 파괴적 혁신 발상 코치입니다.
+주제(불편함): "${state.sprint.topic}"
+지금까지 나온 아이디어: ${state.sprint.ideas.length?state.sprint.ideas.map((t,i)=>`${i+1}.${t}`).join(' / '):'아직 없음'}
 
 직접적인 답(아이디어 자체)을 주지 말고, 사용자가 스스로 파괴적 아이디어를 떠올리게 하는 자극 3개를 주세요:
-1. analogy: 전혀 다른 업계에서 비슷한 불편함을 해결한 실제 사례 1개를 짧게 소개하고 "이 방식을 당신의 주제에 적용하면?"으로 끝내기
-2. reverse: 주제의 전제를 거꾸로 뒤집는 도발적 질문 1개
+1. analogy: 전혀 다른 업계에서 비슷한 불편함을 해결한 실제 사례를 소개하고 "이 방식을 적용하면?" 으로 끝내기
+2. reverse: 주제의 전제를 완전히 뒤집는 도발적 질문 1개
 3. extreme: 10배 키우거나 비용을 0으로 만드는 극단화 질문 1개
 
-반드시 아래 JSON만 출력하세요. 마크다운 백틱이나 다른 텍스트 금지:
+반드시 JSON만 출력하세요(백틱·설명 금지):
 {"provocations":[{"type":"타업계 사례","text":"..."},{"type":"뒤집기","text":"..."},{"type":"극단화","text":"..."}]}`;
   try{
-    const raw = await askClaude(prompt, false);
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    $('aiProvBox').innerHTML = `<div class="ai-box">
-      <div class="ai-tag">AI 발상 자극 — 답이 아니라 질문입니다</div>
-      ${parsed.provocations.map(p=>`<div class="prov"><span class="ptype">${esc(p.type)}</span><span>${esc(p.text)}</span></div>`).join('')}
-      <div class="ai-note">자극을 읽고, 아이디어는 직접 쓰세요. 그래야 근육이 됩니다.</div>
-    </div>`;
+    const r=await askClaude(prompt,false);
+    const p=JSON.parse(r.replace(/```json|```/g,'').trim());
+    $('aiProvBox').innerHTML=`<div class="ai-box"><div class="ai-tag"><i data-lucide="sparkles" size="13"></i> AI 발상 자극 — 답이 아니라 질문입니다</div>${p.provocations.map(x=>`<div class="prov"><span class="ptype">${esc(x.type)}</span><span>${esc(x.text)}</span></div>`).join('')}<div class="ai-note">자극을 읽고, 아이디어는 직접 쓰세요. 그래야 근육이 됩니다.</div></div>`;
   }catch(e){
-    $('aiProvBox').innerHTML = `<div class="ai-box"><div class="ai-tag">AI 연결 실패</div>
-    <div style="font-size:.85rem">외부(GitHub Pages)에서 사용 중이라면 우측 상단 ⚙에서 API 키를 입력하세요. (${esc(e.message)})</div></div>`;
+    $('aiProvBox').innerHTML=`<div class="ai-box"><div class="ai-tag">AI 연결 안 됨</div><div style="font-size:.85rem;color:var(--text2);">⚙에서 API 키를 확인하거나 Claude.ai 내에서 사용하세요.</div></div>`;
   }
-  btn.disabled = false; btn.textContent = '⚡ 막혔어요';
+  btn.disabled=false; btn.innerHTML='<i data-lucide="zap" size="15"></i> 발상 자극'; lucide.createIcons();
 }
 
-/* ---------- 금고 ---------- */
-function onVaultSearch(v){ vaultQuery = v.trim().toLowerCase(); renderVault(); }
+/* ── 보관함 ── */
+// FIX 2: topic 검색 포함
+function onVaultSearch(v){ vaultQuery=v.trim().toLowerCase(); renderVault(); }
+// FIX 1: 최신순 정렬 수정 (b.id - a.id)
 function toggleVaultSort(){
-  vaultSort = (vaultSort==='recent') ? 'score' : 'recent';
-  $('vaultSortBtn').textContent = '정렬: ' + (vaultSort==='recent' ? '최신순' : '점수높은순');
+  vaultSort=vaultSort==='recent'?'score':'recent';
+  $('vaultSortBtn').innerHTML=`<i data-lucide="arrow-up-down" size="15"></i> ${vaultSort==='recent'?'최신순':'점수순'}`;
+  lucide.createIcons({root:$('vaultSortBtn')});
   renderVault();
 }
+
 function renderVault(){
-  const list = $('vaultList');
-  if(!state.vault.length){
-    list.innerHTML = `<div class="empty"><b>금고가 비어 있습니다.</b><br>스프린트를 완주하면 파괴 구간(7–10번) 아이디어가 여기에 쌓입니다.</div>`;
-    return;
-  }
-  const crits = ['내가 고객','1주 테스트','AI 1/10'];
-  let items = [...state.vault];
-  if(vaultQuery) items = items.filter(it => it.txt.toLowerCase().includes(vaultQuery) || it.topic.toLowerCase().includes(vaultQuery));
-  if(vaultSort==='score') items.sort((a,b)=> (b.s[0]+b.s[1]+b.s[2]) - (a.s[0]+a.s[1]+a.s[2]));
-  else items.reverse();
-  if(!items.length){
-    list.innerHTML = `<div class="empty">검색 결과가 없습니다.</div>`;
-    return;
-  }
-  list.innerHTML = items.map(it=>{
-    const total = it.s[0]+it.s[1]+it.s[2];
+  const l=$('vaultList');
+  if(!state.vault.length){ l.innerHTML=`<div class="empty"><i data-lucide="inbox" size="44" style="opacity:.2;display:block;margin:0 auto 14px;"></i><b>보관함이 비었습니다</b>아이디어 발상을 완주하면 파괴 구간(7~10번) 아이디어가 여기 저장됩니다.</div>`; lucide.createIcons(); return; }
+  // FIX 1: 최신순 정렬 → b.id - a.id (타임스탬프 기반)
+  // FIX 2: topic 검색 포함
+  let items=[...state.vault].filter(i=>!vaultQuery||i.txt.toLowerCase().includes(vaultQuery)||(i.topic||'').toLowerCase().includes(vaultQuery));
+  items.sort((a,b)=>vaultSort==='score'?(b.s[0]+b.s[1]+b.s[2])-(a.s[0]+a.s[1]+a.s[2]):b.id-a.id);
+  if(!items.length){ l.innerHTML=`<div class="empty">검색 결과가 없습니다.</div>`; return; }
+  l.innerHTML=items.map(it=>{
+    const tot=it.s[0]+it.s[1]+it.s[2];
     return `<div class="vault-item">
-      <div class="meta">${it.date} · ${esc(it.topic)}</div>
+      <div class="meta">${it.date}${it.topic?` · ${esc(it.topic)}`:''}
+</div>
       <div class="txt">${esc(it.txt)}</div>
       <div class="score-row">
-        ${crits.map((c,ci)=>`<div class="crit"><span>${c}</span><div class="dots">
-          ${[1,2,3].map(v=>`<button class="dot ${it.s[ci]>=v?'on':''}" onclick="setScore(${it.id},${ci},${v})" aria-label="${c} ${v}점">${v}</button>`).join('')}
-        </div></div>`).join('')}
-        <span class="total ${total>=7?'hi':''}">${total}/9</span>
+        ${['고객인가','1주테스트','AI 1/10'].map((c,ci)=>`<div class="crit"><span>${c}</span><div class="dots">${[1,2,3].map(v=>`<button class="dot ${it.s[ci]>=v?'on':''}" onclick="setScore(${it.id},${ci},${v})">${v}</button>`).join('')}</div></div>`).join('')}
+        <span class="total ${tot>=7?'hi':''}">${tot}/9</span>
       </div>
       <div class="vault-actions">
-        ${total>=7?`<button class="primary" style="font-size:.8rem;padding:7px 14px" onclick="toBoard(${it.id})">검증 보내기</button>`:''}
-        <button class="ghost" id="exp-${it.id}" onclick="expertScoreVault(${it.id})">🧠 전문가 평가</button>
-        <button class="ghost" id="cmp-${it.id}" onclick="compareIdea(${it.id})">🔍 유사 사례 비교</button>
-        <button class="ghost" onclick="delVault(${it.id})">삭제</button>
+        ${tot>=7?`<button class="primary" onclick="toBoard(${it.id})"><i data-lucide="arrow-right-circle" size="15"></i> 시장 검증 보내기</button>`:''}
+        <button class="ghost" id="exp-${it.id}" onclick="expertScoreVault(${it.id})"><i data-lucide="brain-circuit" size="15"></i> AI 평가</button>
+        <button class="ghost" id="cmp-${it.id}" onclick="compareIdea(${it.id})"><i data-lucide="globe" size="15"></i> 유사 사례</button>
+        <button class="ghost" onclick="delVault(${it.id})"><i data-lucide="trash-2" size="15"></i></button>
       </div>
-      ${it.expert?`<div class="ai-box" style="margin-top:12px"><div class="ai-tag">${it.expert[0].score!==null?'AI 전문가 평가 — 점수는 자동 반영되었습니다, 클릭해서 직접 조정 가능':'AI 연결 안 됨 — 아래 질문에 직접 답하며 점수를 매겨보세요'}</div>
-        ${it.expert.map(e=>`<div class="prov"><span class="ptype">${esc(e.persona)}${e.score!==null?' '+e.score+'/3':''}</span><span>${esc(e.reason)}</span></div>`).join('')}
-      </div>`:''}
-      ${it.compare?`<div class="compare-box"><div class="ai-tag">AI 유사 사례 분석</div>${esc(it.compare)}</div>`:''}
-    </div>`;
-  }).join('');
+      ${it.expert?`<div class="ai-box"><div class="ai-tag"><i data-lucide="brain-circuit" size="13"></i> AI 전문가 평가 — 점수 자동 반영됨</div>${it.expert[0]&&it.expert[0].score!=null?it.expert.map(e=>`<div class="prov"><span class="ptype">${esc(e.persona)} ${e.score}/3</span><span>${esc(e.reason)}</span></div>`).join(''):it.expert.map(e=>`<div class="prov"><span class="ptype">${esc(e.persona)}</span><span>${esc(e.reason)}</span></div>`).join('')}</div>`:''}
+      ${it.compare?`<div class="compare-box"><div class="ai-tag"><i data-lucide="globe" size="13"></i> 유사 사례 분석 (AI)</div>${esc(it.compare)}</div>`:''}</div>`;
+  }).join(''); lucide.createIcons();
 }
-function setScore(id,ci,v){
-  const it = state.vault.find(x=>x.id===id); if(!it) return;
-  it.s[ci] = (it.s[ci]===v) ? v-1 : v;
-  save(); renderVault();
-}
-function delVault(id){ state.vault = state.vault.filter(x=>x.id!==id); save(); renderVault(); }
 
+function setScore(id,ci,v){ const it=state.vault.find(x=>x.id===id); if(it){ it.s[ci]=it.s[ci]===v?v-1:v; save(); renderVault(); } }
+function delVault(id){ state.vault=state.vault.filter(x=>x.id!==id); save(); renderVault(); showToast('삭제됨'); }
+
+/* ── 유사 사례 비교 (FIX 5: 프롬프트 강화) ── */
 async function compareIdea(id){
-  const it = state.vault.find(x=>x.id===id); if(!it) return;
-  const btn = $('cmp-'+id);
-  if(btn){ btn.disabled = true; btn.textContent = '🔍 검색·분석 중...'; }
-  const prompt = `웹 검색을 활용해 다음 아이디어와 유사한 기존 서비스/사례를 조사하고 비교 분석해 주세요.
-아이디어: "${it.txt}" (배경 불편함: ${it.topic})
+  const it=state.vault.find(x=>x.id===id); if(!it) return;
+  const b=$('cmp-'+id); if(b){b.disabled=true;b.innerHTML='<div class="spinner"></div>';}
+  const prompt=`웹 검색을 활용해 다음 아이디어와 유사한 기존 서비스/사례를 조사하고 비교 분석해 주세요.
+아이디어: "${it.txt}" (배경 불편함: ${it.topic||'미입력'})
 
-다음 형식으로 한국어로 간결하게(전체 400자 이내) 답하세요:
+다음 형식으로 한국어로 간결하게(400자 이내) 답하세요:
 [기존 유사 사례] 2~3개 — 이름과 한 줄 설명
 [차이점] 이 아이디어가 기존과 다른 점 1~2줄
 [빈틈/기회] 기존 사례들이 놓치고 있는 지점 1~2줄
 [한 줄 판정] 레드오션/블루오션/니치 중 하나와 이유`;
-  try{
-    it.compare = await askClaude(prompt, true);
-  }catch(e){
-    it.compare = "AI 연결 실패 — 외부(GitHub Pages)에서 사용 중이라면 ⚙에서 API 키를 입력하세요. ("+e.message+")";
-  }
+  try{ it.compare=await askClaude(prompt,true); }
+  catch(e){ it.compare='AI 연결 실패 — ⚙에서 API 키를 확인하세요.'; }
   save(); renderVault();
 }
 
+/* ── AI 전문가 평가 (FIX 3: 점수 자동반영 + FIX 5: 프롬프트 강화) ── */
 async function expertScoreVault(id){
-  const it = state.vault.find(x=>x.id===id); if(!it) return;
-  const btn = $('exp-'+id);
-  if(btn){ btn.disabled = true; btn.textContent = '🧠 평가 중...'; }
-  const prompt = `다음 아이디어를 3명의 서로 다른 전문가 관점에서 0~3점으로 평가해 주세요.
-아이디어: "${it.txt}"
-배경 불편함: "${it.topic}"
+  const it=state.vault.find(x=>x.id===id); if(!it) return;
+  const b=$('exp-'+id); if(b){b.disabled=true;b.innerHTML='<div class="spinner"></div>';}
+  const prompt=`다음 아이디어를 3명의 전문가 관점에서 0~3점으로 평가해 주세요.
+아이디어: "${it.txt}" (배경: ${it.topic||'미입력'})
 
-반드시 이 순서와 기준을 그대로 따르세요:
-1. 사용자 리서치 전문가 — 기준: 작성자 본인이 실제 타겟 고객에 해당하고, 비슷한 고객층이 충분히 존재하는가
-2. 린스타트업 실행 코치 — 기준: 1주 안에 최소 형태(인터뷰, 랜딩페이지 등)로 테스트 가능한가
-3. AI·기술 효율화 전문가 — 기준: AI를 활용해 기존 방식보다 비용/시간을 1/10 수준으로 줄일 수 있는가
+기준:
+1. 사용자 리서치 전문가 — 내가 실제 타겟 고객인가? 비슷한 고객층이 충분한가?
+2. 린스타트업 코치 — 1주 안에 최소 형태로 테스트 가능한가?
+3. AI 효율화 전문가 — AI로 기존 방식보다 비용/시간을 1/10 줄일 수 있는가?
 
-각 전문가는 0~3점 점수와 1줄 근거를 답니다. JSON만 출력하세요(마크다운 백틱·다른 텍스트 금지):
-{"scores":[{"persona":"사용자 리서치 전문가","score":0,"reason":"..."},{"persona":"린스타트업 실행 코치","score":0,"reason":"..."},{"persona":"AI·기술 효율화 전문가","score":0,"reason":"..."}]}`;
+JSON만 출력하세요(백틱·설명 금지):
+{"scores":[{"persona":"사용자 리서치 전문가","score":0,"reason":"..."},{"persona":"린스타트업 코치","score":0,"reason":"..."},{"persona":"AI 효율화 전문가","score":0,"reason":"..."}]}`;
   try{
-    const raw = await askClaude(prompt, false);
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    it.expert = parsed.scores;
-    parsed.scores.forEach((s,i)=>{ if(it.s[i]!==undefined) it.s[i] = Math.max(0,Math.min(3,Math.round(s.score))); });
+    const r=await askClaude(prompt,false);
+    const parsed=JSON.parse(r.replace(/```json|```/g,'').trim());
+    it.expert=parsed.scores;
+    // FIX 3: 점수 자동 반영
+    parsed.scores.forEach((s,i)=>{ if(i<3) it.s[i]=Math.max(0,Math.min(3,Math.round(s.score))); });
   }catch(e){
-    it.expert = [
-      {persona:'사용자 리서치 관점', score:null, reason:'나는 이 문제를 가진 사람인가? 비슷한 사람이 몇 명이나 있을까?'},
-      {persona:'린스타트업 관점', score:null, reason:'1주 안에 무엇으로 가장 빠르게 테스트할 수 있을까?'},
-      {persona:'AI 효율화 관점', score:null, reason:'AI로 어떤 반복 작업을 줄일 수 있을까?'}
-    ];
+    it.expert=[{persona:'AI 연결 안 됨',score:null,reason:'⚙에서 API 키를 확인하거나 Claude.ai 내에서 사용하세요.'}];
   }
   save(); renderVault();
 }
 
-function toBoard(id){
-  pendingBoardIdea = state.vault.find(x=>x.id===id);
-  $('hypoText').value='';
-  hypoDialog.showModal();
-}
+/* ── 보관함 → 검증 ── */
+function toBoard(id){ pendingBoardIdea=state.vault.find(x=>x.id===id); $('hypoText').value=''; hypoDialog.showModal(); }
 function saveHypo(){
-  const h = $('hypoText').value.trim();
-  if(!h || !pendingBoardIdea) return;
-  state.board.push({ id:Date.now(), txt:pendingBoardIdea.txt, hyp:h, col:'hypo', win:false, reason:'', date:today(), testDate:null });
-  state.vault = state.vault.filter(x=>x.id!==pendingBoardIdea.id);
-  pendingBoardIdea = null;
-  hypoDialog.close();
-  save(); renderVault(); renderBoard();
+  const h=$('hypoText').value.trim(); if(!h||!pendingBoardIdea) return;
+  state.board.push({id:newId(),txt:pendingBoardIdea.txt,hyp:h,col:'hypo',win:false,reason:'',date:today(),testDate:null,movedToProduct:false});
+  state.vault=state.vault.filter(x=>x.id!==pendingBoardIdea.id);
+  pendingBoardIdea=null; hypoDialog.close(); save(); renderVault(); renderBoard(); showToast('시장 검증으로 이동했습니다');
 }
 
-/* ---------- 검증 보드 ---------- */
+/* ── 검증 보드 (FIX 4: renderHistory 제거, 경과일 배지 추가) ── */
 function renderBoard(){
-  const cols = {hypo:[],test:[],done:[]};
-  state.board.forEach(c=>cols[c.col].push(c));
   ['hypo','test','done'].forEach(k=>{
-    $('cnt-'+k).textContent = cols[k].length ? `(${cols[k].length})` : '';
-    $('col-'+k).innerHTML = cols[k].map(c=>{
-      const elapsed = (c.col==='test' && c.testDate) ? daysSince(c.testDate) : null;
-      return `
-      <div class="card ${c.win?'win':''}">
+    const items=state.board.filter(c=>c.col===k);
+    $('cnt-'+k).textContent=items.length?`(${items.length})`:'';
+    $('col-'+k).innerHTML=items.map(c=>{
+      const elapsed=(c.col==='test'&&c.testDate)?daysSince(c.testDate):null;
+      return `<div class="card ${c.win?'win':''}">
         <b>${esc(c.txt)}</b>
-        ${elapsed!==null?`<span class="badge-elapsed ${elapsed>=7?'warn':''}" style="float:right">테스트 D+${elapsed}</span>`:''}
+        ${elapsed!==null?`<span class="elapsed ${elapsed>=7?'warn':''}" style="display:inline-block;margin-top:4px;">D+${elapsed}일</span>`:''}
         <div class="hyp">${esc(c.hyp)}</div>
         ${c.reason?`<div class="reason">배운 점: ${esc(c.reason)}</div>`:''}
         <div class="move">
-          ${c.col==='hypo'?`<button class="primary" onclick="moveCard(${c.id},'test')">테스트 시작</button>`:''}
-          ${c.col==='test'?`<button class="primary" onclick="finishCard(${c.id},true)">통과</button><button class="ghost" onclick="openReject(${c.id})">기각</button>`:''}
-          ${c.col==='done'?`<span style="font-size:.78rem;color:${c.win?'var(--ultra)':'var(--gray)'};font-weight:600">${c.win?'✓ 돈 낼 사람 있음 — 올인 후보':'✗ 기각'}</span>`:''}
-          ${c.col==='done' && c.win && !c.movedToProduct?`<button class="primary" style="font-size:.75rem;padding:5px 10px" onclick="sendToProduct(${c.id})">🚀 상품화 트랙으로</button>`:''}
-          ${c.movedToProduct?`<span style="font-size:.75rem;color:var(--gray)">→ 상품화 탭에서 진행 중</span>`:''}
-          <button class="ghost" onclick="delCard(${c.id})">삭제</button>
+          ${k==='hypo'?`<button class="primary" onclick="moveCard(${c.id},'test')">검증 시작 <i data-lucide="play" size="13"></i></button>`:''}
+          ${k==='test'?`<button class="primary" onclick="finishCard(${c.id},true)"><i data-lucide="check" size="13"></i> 통과</button><button class="ghost" onclick="openReject(${c.id})"><i data-lucide="x" size="13"></i> 기각</button>`:''}
+          ${k==='done'?`<span style="font-size:.8rem;font-weight:700;color:${c.win?'var(--blue)':'var(--text2)'};">${c.win?'✓ 올인 후보':'✗ 기각'}</span>`:'' }
+          ${k==='done'&&c.win&&!c.movedToProduct?`<button class="primary" onclick="sendToProduct(${c.id})"><i data-lucide="rocket" size="13"></i> 상품화</button>`:''}
+          <button class="ghost" onclick="delCard(${c.id})"><i data-lucide="trash-2" size="13"></i></button>
         </div>
       </div>`;
-    }).join('') || `<div class="empty" style="padding:24px 10px;font-size:.82rem">비어 있음</div>`;
+    }).join('')||`<div class="empty" style="padding:20px;"><i data-lucide="inbox" size="28" style="opacity:.2;display:block;margin:0 auto 8px;"></i></div>`;
   });
-  renderHistory();
+  // FIX 4: renderHistory를 renderBoard에서 제거 (renderAll에서 한 번만 호출)
+  lucide.createIcons();
 }
-function moveCard(id,col){ const c=state.board.find(x=>x.id===id); if(c){c.col=col; if(col==='test' && !c.testDate) c.testDate=today(); save(); renderBoard();} }
-function finishCard(id,win){ const c=state.board.find(x=>x.id===id); if(c){c.col='done'; c.win=win; save(); renderBoard();} }
+function moveCard(id,col){ const c=state.board.find(x=>x.id===id); if(c){c.col=col;if(col==='test'&&!c.testDate)c.testDate=today();save();renderBoard();} }
+function finishCard(id,win){ const c=state.board.find(x=>x.id===id); if(c){c.col='done';c.win=win;save();renderBoard();showToast(win?'검증 통과!':'기각됨');} }
 function openReject(id){ pendingRejectId=id; $('rejectText').value=''; rejectDialog.showModal(); }
-function confirmReject(){
-  const c = state.board.find(x=>x.id===pendingRejectId);
-  if(c){ c.col='done'; c.win=false; c.reason=$('rejectText').value.trim(); }
-  pendingRejectId=null; rejectDialog.close(); save(); renderBoard();
-}
-function delCard(id){ state.board=state.board.filter(x=>x.id!==id); save(); renderBoard(); }
+function confirmReject(){ const c=state.board.find(x=>x.id===pendingRejectId); if(c){c.col='done';c.win=false;c.reason=$('rejectText').value.trim();} pendingRejectId=null; rejectDialog.close(); save(); renderBoard(); showToast('기각됨'); }
+function delCard(id){ state.board=state.board.filter(x=>x.id!==id); save(); renderBoard(); showToast('삭제됨'); }
 
-/* ---------- 상품화 트랙 ---------- */
-function sendToProduct(boardId){
-  const c = state.board.find(x=>x.id===boardId); if(!c) return;
-  c.movedToProduct = true;
-  state.product.push({
-    id:Date.now(), txt:c.txt, hyp:c.hyp, source:'auto', date:today(),
-    scores:[0,0,0,0], guide: GUIDE_STEPS.map(()=>({done:false,note:''})), expert:null, ipCheck:null
-  });
-  save(); renderBoard(); renderProduct();
-}
-function toggleManualRow(){
-  const r = $('manualRow');
-  r.style.display = (r.style.display==='none') ? 'flex' : 'none';
-  if(r.style.display==='flex') $('manualInput').focus();
-}
-function addProductManual(){
-  const v = $('manualInput').value.trim();
-  if(!v) return;
-  state.product.push({
-    id:Date.now(), txt:v, hyp:'', source:'manual', date:today(),
-    scores:[0,0,0,0], guide: GUIDE_STEPS.map(()=>({done:false,note:''})), expert:null, ipCheck:null
-  });
-  $('manualInput').value=''; $('manualRow').style.display='none';
-  save(); renderProduct();
-}
-function delProduct(id){ state.product = state.product.filter(x=>x.id!==id); save(); renderProduct(); }
-function setProdScore(id,ci,v){
-  const it = state.product.find(x=>x.id===id); if(!it) return;
-  it.scores[ci] = (it.scores[ci]===v) ? v-1 : v;
-  save(); renderProduct();
-}
-async function expertScoreProduct(id){
-  const it = state.product.find(x=>x.id===id); if(!it) return;
-  const btn = $('pexp-'+id);
-  if(btn){ btn.disabled = true; btn.textContent = '🧠 평가 중...'; }
-  const prompt = `다음 사업 아이템을 4명의 서로 다른 전문가 관점에서 0~3점으로 평가해 주세요.
-아이템: "${it.txt}"
-${it.hyp?`검증 가설: "${it.hyp}"`:''}
+/* ── 상품화 ── */
+function sendToProduct(bId){ const c=state.board.find(x=>x.id===bId); if(c){c.movedToProduct=true; state.product.push({id:newId(),txt:c.txt,hyp:c.hyp,source:'auto',date:today(),scores:[0,0,0,0],guide:GUIDE_STEPS.map(()=>({done:false,note:''})),expert:null}); save(); renderBoard(); renderProduct(); showToast('상품화 트랙으로 이동!');} }
+function toggleManualRow(){ const r=$('manualRow'); r.style.display=r.style.display==='none'||!r.style.display?'flex':'none'; if(r.style.display==='flex') $('manualInput').focus(); }
+function addProductManual(){ const v=$('manualInput').value.trim(); if(!v) return; state.product.push({id:newId(),txt:v,hyp:'',source:'manual',date:today(),scores:[0,0,0,0],guide:GUIDE_STEPS.map(()=>({done:false,note:''})),expert:null}); $('manualInput').value=''; updateCharCount($('manualInput'),'manualCount'); $('manualRow').style.display='none'; save(); renderProduct(); showToast('추가됨'); }
+function delProduct(id){ state.product=state.product.filter(x=>x.id!==id); save(); renderProduct(); showToast('삭제됨'); }
+function setProdScore(id,ci,v){ const it=state.product.find(x=>x.id===id); if(it){it.scores[ci]=it.scores[ci]===v?v-1:v;save();renderProduct();} }
+function toggleGuideStep(id,idx){ const it=state.product.find(x=>x.id===id); if(it){it.guide[idx].done=!it.guide[idx].done;save();renderProduct();} }
+function updateGuideNote(id,idx,val){ const it=state.product.find(x=>x.id===id); if(it){it.guide[idx].note=val;save();} }
 
-반드시 이 순서와 기준을 그대로 따르세요:
-1. 시장분석 전문가 — 기준(시장성): 유사 서비스 존재 여부와 실제 수요 규모
-2. 투자자(VC) — 기준(수익화): 지불 의사가 명확한 수익 모델이 있는가
-3. 기술/PM 전문가 — 기준(실현가능성): 1인 또는 소규모로 구현 가능한 기술 난이도
-4. 특허·IP 전문가 — 기준(차별화): 차별점이 특허·상표 등으로 법적 보호가 가능한 수준인가
-
-각 전문가는 0~3점 점수와 1줄 근거를 답니다. JSON만 출력하세요(마크다운 백틱·다른 텍스트 금지):
-{"scores":[{"persona":"시장분석 전문가","score":0,"reason":"..."},{"persona":"투자자(VC)","score":0,"reason":"..."},{"persona":"기술/PM 전문가","score":0,"reason":"..."},{"persona":"특허·IP 전문가","score":0,"reason":"..."}]}`;
-  try{
-    const raw = await askClaude(prompt, false);
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    it.expert = parsed.scores;
-    parsed.scores.forEach((s,i)=>{ if(it.scores[i]!==undefined) it.scores[i] = Math.max(0,Math.min(3,Math.round(s.score))); });
-  }catch(e){
-    it.expert = [
-      {persona:'시장분석 관점', score:null, reason:'이미 비슷한 서비스가 있는가? 있다면 무엇이 부족한가?'},
-      {persona:'투자자(VC) 관점', score:null, reason:'누가, 왜 돈을 낼까? 무료 대안보다 나은 이유는?'},
-      {persona:'기술/PM 관점', score:null, reason:'혼자서, 1주~1개월 안에 만들 수 있는 범위는 어디까지인가?'},
-      {persona:'특허·IP 관점', score:null, reason:'이 차별점은 따라하기 쉬운가, 어려운가? 브랜드명은 보호할 가치가 있는가?'}
-    ];
-  }
-  save(); renderProduct();
-}
-async function checkIP(id){
-  const it = state.product.find(x=>x.id===id); if(!it) return;
-  const btn = $('ip-'+id);
-  if(btn){ btn.disabled = true; btn.textContent = '🔍 조사 중...'; }
-  const prompt = `웹 검색을 활용해 다음 아이템의 이름·핵심 표현과 동일하거나 매우 유사한 상표·서비스명·특허가 한국에 이미 존재하는지 조사해 주세요.
-아이템: "${it.txt}"
-
-다음 형식으로 한국어로 간결하게(300자 이내) 답하세요:
-[검색 결과] 동일·유사한 이름이 발견되면 이름과 출처, 없으면 "검색된 자료에서는 발견되지 않음"
-[주의사항] 출원 전 주의할 점 1줄
-[다음 행동] 키프리스(kipris.or.kr)에서 직접 재확인 권장 문구 포함, 필요시 변리사 상담 권장`;
-  try{
-    it.ipCheck = await askClaude(prompt, true);
-  }catch(e){
-    it.ipCheck = "AI 연결 실패 — 외부(GitHub Pages)에서 사용 중이라면 ⚙에서 API 키를 확인하세요. ("+e.message+")";
-  }
-  save(); renderProduct();
-}
-function toggleGuideStep(id, idx){
-  const it = state.product.find(x=>x.id===id); if(!it) return;
-  it.guide[idx].done = !it.guide[idx].done;
-  save(); renderProduct();
-}
-function updateGuideNote(id, idx, val){
-  const it = state.product.find(x=>x.id===id); if(!it) return;
-  it.guide[idx].note = val;
-  save();
-}
 function renderProduct(){
-  const list = $('productList');
-  if(!state.product.length){
-    list.innerHTML = `<div class="empty"><b>아직 상품화 후보가 없습니다.</b><br>검증 보드에서 통과한 아이디어가 자동으로 들어오거나, 위 버튼으로 직접 추가하세요.</div>`;
-    return;
-  }
-  const crits = ['시장성','수익화','실현가능성','차별화'];
-  list.innerHTML = [...state.product].reverse().map(it=>{
-    const total = it.scores.reduce((a,b)=>a+b,0);
-    const doneN = it.guide.filter(g=>g.done).length;
+  const l=$('productList');
+  if(!state.product.length){ l.innerHTML=`<div class="empty"><i data-lucide="package" size="44" style="opacity:.2;display:block;margin:0 auto 14px;"></i><b>상품화 후보가 없습니다</b>검증을 통과한 아이디어가 여기로 이동합니다.</div>`; lucide.createIcons(); return; }
+  l.innerHTML=[...state.product].reverse().map(it=>{
+    const tot=it.scores.reduce((a,b)=>a+b,0);
+    const doneN=it.guide.filter(g=>g.done).length;
     return `<div class="vault-item">
-      <div class="meta">${it.date} · <span class="badge-src ${it.source==='auto'?'auto':''}">${it.source==='auto'?'검증통과 자동전송':'직접 추가'}</span></div>
+      <div class="meta">${it.date} <span class="badge-src ${it.source==='auto'?'auto':''}">${it.source==='auto'?'자동전송':'수동추가'}</span></div>
       <div class="txt">${esc(it.txt)}</div>
-      ${it.hyp?`<div style="font-size:.82rem;color:var(--gray);margin-bottom:10px">가설: ${esc(it.hyp)}</div>`:''}
+      ${it.hyp?`<div style="font-size:.85rem;color:var(--text2);margin-bottom:12px;">가설: ${esc(it.hyp)}</div>`:''}
       <div class="score-row">
-        ${crits.map((c,ci)=>`<div class="crit"><span>${c}</span><div class="dots">
-          ${[1,2,3].map(v=>`<button class="dot ${it.scores[ci]>=v?'on':''}" onclick="setProdScore(${it.id},${ci},${v})" aria-label="${c} ${v}점">${v}</button>`).join('')}
-        </div></div>`).join('')}
-        <span class="total ${total>=8?'hi':''}">${total}/12</span>
-        ${total>=8?'<span class="badge-rec">착수 추천</span>':''}
-      </div>
-      ${it.expert?`<div class="ai-box" style="margin-top:12px"><div class="ai-tag">${it.expert[0].score!==null?'AI 전문가 평가 — 점수는 자동 반영되었습니다, 클릭해서 직접 조정 가능':'AI 연결 안 됨 — 아래 질문에 직접 답하며 점수를 매겨보세요'}</div>
-        ${it.expert.map(e=>`<div class="prov"><span class="ptype">${esc(e.persona)}${e.score!==null?' '+e.score+'/3':''}</span><span>${esc(e.reason)}</span></div>`).join('')}
-      </div>`:''}
-      <div class="vault-actions" style="margin-top:12px">
-        <button class="ghost" id="pexp-${it.id}" onclick="expertScoreProduct(${it.id})">🧠 전문가 평가</button>
+        ${['시장성','수익화','실현성','차별화'].map((c,ci)=>`<div class="crit"><span>${c}</span><div class="dots">${[1,2,3].map(v=>`<button class="dot ${it.scores[ci]>=v?'on':''}" onclick="setProdScore(${it.id},${ci},${v})">${v}</button>`).join('')}</div></div>`).join('')}
+        <span class="total ${tot>=8?'hi':''}">${tot}/12</span>
+        ${tot>=8?'<span class="badge-rec">착수 추천</span>':''}
       </div>
       <div class="guide-wrap">
-        <div class="guide-progress">상품화 가이드 진행 <b>${doneN}/${GUIDE_STEPS.length}</b></div>
-        ${GUIDE_STEPS.map((s,idx)=>{
-          const g = it.guide[idx];
-          const isIP = (idx === GUIDE_STEPS.length-1);
-          return `<details class="guide-step ${g.done?'done':''}">
-            <summary><span class="chk">${g.done?'✓':''}</span><span class="stitle">${idx+1}. ${s.title}</span></summary>
-            <div class="body">
-              <div class="prompt">${s.prompt}</div>
-              ${isIP?`<button class="ghost" id="ip-${it.id}" onclick="checkIP(${it.id})">🔍 AI 동일·유사 상표 선조사</button>
-              ${it.ipCheck?`<div class="compare-box" style="margin-top:10px"><div class="ai-tag">AI 선조사 결과 (참고용)</div>${esc(it.ipCheck)}</div>`:''}`:''}
-              <textarea placeholder="메모" onblur="updateGuideNote(${it.id},${idx},this.value)" style="margin-top:${isIP?'10px':'0'}">${esc(g.note)}</textarea>
-              <button class="ghost" onclick="toggleGuideStep(${it.id},${idx})">${g.done?'완료 해제':'완료로 표시'}</button>
-            </div>
-          </details>`;
-        }).join('')}
+        <div class="guide-progress">상품화 가이드 <b>${doneN}/${GUIDE_STEPS.length}</b> 단계 완료</div>
+        ${GUIDE_STEPS.map((s,idx)=>{const g=it.guide[idx];return `<details class="guide-step ${g.done?'done':''}"><summary><span class="chk"><i data-lucide="check" size="13"></i></span><span class="stitle">${idx+1}. ${s.title}</span></summary><div class="body"><div class="prompt">${s.prompt}</div><textarea placeholder="메모" onblur="updateGuideNote(${it.id},${idx},this.value)">${esc(g.note)}</textarea><button class="ghost" style="margin-top:8px;" onclick="toggleGuideStep(${it.id},${idx})">${g.done?'완료 해제':'완료 표시'}</button></div></details>`;}).join('')}
       </div>
-      <div class="vault-actions" style="margin-top:14px">
-        <button class="ghost" onclick="delProduct(${it.id})">삭제</button>
-      </div>
-    </div>`;
+      <div class="vault-actions" style="margin-top:14px;">
+        <button class="ghost" onclick="delProduct(${it.id})"><i data-lucide="trash-2" size="15"></i></button>
+      </div></div>`;
   }).join('');
+  setTimeout(()=>document.querySelectorAll('.guide-wrap textarea').forEach(el=>{el.style.height='auto';el.style.height=el.scrollHeight+'px';}),10);
+  lucide.createIcons();
 }
 
-/* ---------- 히스토리 & 통계 ---------- */
-function onHistSearch(v){ histQuery = v.trim().toLowerCase(); renderHistory(); }
+/* ── 히스토리 ── */
+function onHistSearch(v){ histQuery=v.trim().toLowerCase(); renderHistory(); }
 function renderHistory(){
-  $('stSprints').textContent = state.history.length;
-  $('stIdeas').textContent = state.history.length*10;
-  const done = state.board.filter(c=>c.col==='done');
-  $('stTested').textContent = done.length;
-  $('stWinRate').textContent = done.length ? Math.round(done.filter(c=>c.win).length/done.length*100)+'%' : '–';
-
-  const list = $('histList');
-  if(!state.history.length){
-    list.innerHTML = `<div class="empty"><b>아직 완주한 스프린트가 없습니다.</b><br>첫 10개를 채우면 여기에 기록이 시작됩니다.</div>`;
-    return;
-  }
-  let items = [...state.history].reverse();
-  if(histQuery) items = items.filter(h => h.topic.toLowerCase().includes(histQuery));
-  if(!items.length){ list.innerHTML = `<div class="empty">검색 결과가 없습니다.</div>`; return; }
-  list.innerHTML = items.map(h=>`
-    <details class="hist-item">
-      <summary><span class="d">${h.date}</span><span class="t">${esc(h.topic)}</span></summary>
-      <ul>${h.ideas.map((t,i)=>`<li class="${i>=6?'zone':''}"><span class="num">${i+1}</span><span>${esc(t)}</span></li>`).join('')}</ul>
-    </details>`).join('');
+  $('stSprints').textContent=state.history.length;
+  $('stIdeas').textContent=state.history.length*10;
+  const d=state.board.filter(c=>c.col==='done');
+  $('stTested').textContent=d.length;
+  $('stWinRate').textContent=d.length?Math.round(d.filter(c=>c.win).length/d.length*100)+'%':'–';
+  const l=$('histList');
+  let items=[...state.history].reverse().filter(h=>!histQuery||h.topic.toLowerCase().includes(histQuery));
+  if(!items.length){ l.innerHTML=`<div class="empty"><i data-lucide="clock" size="44" style="opacity:.2;display:block;margin:0 auto 14px;"></i><b>기록이 없습니다</b>아이디어 발상을 완주하면 여기에 쌓입니다.</div>`; lucide.createIcons(); return; }
+  l.innerHTML=items.map(h=>`<details class="hist-item"><summary><span class="d">${h.date}</span><span>${esc(h.topic)}</span><i data-lucide="chevron-down" size="15" style="margin-left:auto;color:var(--text2);flex-shrink:0;"></i></summary><ul>${h.ideas.map((t,i)=>`<li class="${i>=6?'zone':''}"><span class="num">${i+1}</span><span>${esc(t)}</span></li>`).join('')}</ul></details>`).join('');
+  lucide.createIcons();
 }
 
-/* ---------- 백업 ---------- */
-function exportData(){
-  const data = Object.assign({}, state); delete data.apiKey;
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `idea-lab-backup-${today()}.json`;
-  a.click(); URL.revokeObjectURL(a.href);
-}
-function importData(input){
-  const f = input.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ()=>{
-    try{
-      const d = JSON.parse(r.result);
-      if(!d.history && !d.vault) throw new Error('형식 불일치');
-      delete d.apiKey;
-      state = Object.assign(state, d);
-      save(); renderAll();
-      alert('백업을 불러왔습니다.');
-    }catch(e){ alert('백업 파일을 읽을 수 없습니다: '+e.message); }
-  };
-  r.readAsText(f); input.value='';
+/* ── 백업 ── */
+function exportData(){ const d=Object.assign({},state); delete d.apiKey; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'})); a.download=`idealab-${today()}.json`; a.click(); showToast('백업 완료'); }
+function importData(inp){ const f=inp.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{try{const d=JSON.parse(r.result);delete d.apiKey;state=Object.assign(state,d);save();renderAll();showToast('불러오기 완료');}catch(e){showToast('오류','error');}}; r.readAsText(f); inp.value=''; }
+
+/* ── renderAll (FIX 4: renderHistory 한 번만 호출) ── */
+function renderSteakUI(){ $('streakNum').textContent=state.streak; }
+function renderAll(){
+  renderSprint();
+  renderVault();
+  renderBoard();
+  renderHistory(); // FIX 4: renderBoard에서 제거, 여기서만 한 번 호출
+  renderProduct();
+  renderSteakUI();
+  renderHomeBanner();
+  lucide.createIcons();
 }
 
-/* ---------- 공통 ---------- */
-function renderStreak(){ $('streakNum').textContent = state.streak; }
-function renderAll(){ renderSprint(); renderVault(); renderBoard(); renderHistory(); renderProduct(); renderStreak(); renderHomeBanner(); }
-load();
+// Firebase onAuthStateChanged → labStart() 호출
 </script>
+</div><!-- /#app-body -->
+
+<script>
+/* ══ Firebase 인증 + 클라우드 동기화 ══ */
+var currentUser=null, unsubSnapshot=null, isSignup=false, _visionTimer=null;
+
+/* fallback (Firebase SDK 로드 전) */
+var auth={
+  onAuthStateChanged:function(cb){setTimeout(function(){cb(null);},80);return function(){};},
+  signInWithEmailAndPassword:async function(){throw {code:'auth/network-request-failed'};},
+  createUserWithEmailAndPassword:async function(){throw {code:'auth/network-request-failed'};},
+  signOut:async function(){},sendPasswordResetEmail:async function(){}
+};
+var db={collection:function(){return{doc:function(){return{get:async function(){return{exists:false,data:function(){return{};}}},set:async function(){},onSnapshot:function(){return function(){};}};}};}};
+
+function setSyncState(s){var dot=document.getElementById('sync-dot'),txt=document.getElementById('sync-text');if(!dot)return;if(s==='syncing'){dot.className='sync-dot syncing';if(txt)txt.textContent='동기화 중...';}else if(s==='ok'){dot.className='sync-dot';if(txt)txt.textContent='동기화됨';}else{dot.className='sync-dot error';if(txt)txt.textContent='오프라인';}}
+
+window.saveToCloud=async function(){if(!currentUser||!db)return;try{setSyncState('syncing');var d=Object.assign({},window._labState||{});delete d.apiKey;await db.collection('ideaLab').doc(currentUser.uid).set({state:d,updatedAt:new Date().toISOString()});setSyncState('ok');}catch(e){setSyncState('error');}};
+
+async function loadFromCloud(uid){if(!db)return;try{setSyncState('syncing');var snap=await db.collection('ideaLab').doc(uid).get();if(snap.exists&&snap.data().state)localStorage.setItem('lab-state',JSON.stringify(snap.data().state));setSyncState('ok');}catch(e){setSyncState('error');}}
+
+function subscribeCloud(uid){if(unsubSnapshot){unsubSnapshot();unsubSnapshot=null;}if(!db)return;unsubSnapshot=db.collection('ideaLab').doc(uid).onSnapshot(function(snap){if(!snap.exists)return;var d=snap.data()&&snap.data().state;if(!d)return;var local=localStorage.getItem('lab-state');if(JSON.stringify(d)!==local){localStorage.setItem('lab-state',JSON.stringify(d));if(window._labSetState)window._labSetState(d);}setSyncState('ok');});}
+
+function handleAuthUser(user){
+  if(user){
+    currentUser=user;
+    document.getElementById('vision-screen').style.display='none';
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app-body').style.display='block';
+    document.getElementById('sync-badge').style.display='flex';
+    document.getElementById('logout-btn').style.display='flex';
+    loadFromCloud(user.uid).then(function(){subscribeCloud(user.uid);if(window.labStart)window.labStart();if(typeof lucide!=='undefined')lucide.createIcons();});
+  }else{
+    currentUser=null;
+    if(unsubSnapshot){unsubSnapshot();unsubSnapshot=null;}
+    document.getElementById('app-body').style.display='none';
+    document.getElementById('sync-badge').style.display='none';
+    document.getElementById('logout-btn').style.display='none';
+    document.getElementById('vision-screen').style.display='flex';
+    document.getElementById('login-screen').style.display='none';
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    startVisionTimer();
+  }
+}
+
+function startVisionTimer(){if(_visionTimer)clearTimeout(_visionTimer);_visionTimer=setTimeout(showLogin,4000);}
+function showLogin(){
+  if(_visionTimer){clearTimeout(_visionTimer);_visionTimer=null;}
+  var vs=document.getElementById('vision-screen');
+  if(!vs||vs.style.display==='none')return;
+  vs.style.opacity='0';vs.style.transition='opacity .4s';
+  setTimeout(function(){vs.style.display='none';var ls=document.getElementById('login-screen');if(ls)ls.style.display='flex';if(typeof lucide!=='undefined')lucide.createIcons();var ae=document.getElementById('auth-email');if(ae)ae.focus();},400);
+}
+
+function toggleSignup(){
+  isSignup=!isSignup;
+  document.getElementById('auth-name').style.display=isSignup?'block':'none';
+  document.getElementById('auth-submit').textContent=isSignup?'회원가입':'로그인';
+  document.getElementById('auth-title').textContent=isSignup?'회원가입':'발상 연구소';
+  document.getElementById('auth-sub').textContent=isSignup?'닉네임, 이메일, 비밀번호를 입력해주세요':'로그인하면 모든 기기에서 같은 아이디어를 볼 수 있어요';
+  document.getElementById('auth-toggle').innerHTML=isSignup?'이미 계정이 있으세요? <span onclick="toggleSignup()">로그인</span>':'처음이세요? <span onclick="toggleSignup()">회원가입</span>';
+  document.getElementById('login-error').style.display='none';
+}
+
+async function doAuth(){
+  var email=(document.getElementById('auth-email').value||'').trim();
+  var pw=document.getElementById('auth-pw').value||'';
+  document.getElementById('login-error').style.display='none';
+  if(!email||!pw){showLoginErr('이메일과 비밀번호를 입력해주세요');return;}
+  var btn=document.getElementById('auth-submit');
+  btn.textContent='처리 중...';btn.disabled=true;
+  try{
+    if(isSignup){
+      var name=(document.getElementById('auth-name').value||'').trim().slice(0,12)||'발상가';
+      var cred=await auth.createUserWithEmailAndPassword(email,pw);
+      if(cred&&cred.user&&cred.user.updateProfile)await cred.user.updateProfile({displayName:name});
+      localStorage.setItem('lab-nickname',name);
+    }else{await auth.signInWithEmailAndPassword(email,pw);}
+  }catch(e){
+    var msgs={'auth/email-already-in-use':'이미 사용 중인 이메일이에요','auth/invalid-email':'이메일 형식이 올바르지 않아요','auth/weak-password':'비밀번호는 6자 이상이어야 해요','auth/invalid-credential':'이메일 또는 비밀번호가 틀렸어요','auth/user-not-found':'등록된 계정이 없어요','auth/wrong-password':'비밀번호가 틀렸어요','auth/network-request-failed':'네트워크 연결을 확인해주세요'};
+    showLoginErr(msgs[e.code]||'오류: '+(e.code||e.message||'unknown'));
+  }
+  btn.textContent=isSignup?'회원가입':'로그인';btn.disabled=false;
+}
+function showLoginErr(msg){var e=document.getElementById('login-error');if(e){e.textContent=msg;e.style.display='block';}}
+document.addEventListener('keydown',function(e){var ls=document.getElementById('login-screen');if(e.key==='Enter'&&ls&&ls.style.display!=='none')doAuth();});
+
+function togglePwReset(){var p=document.getElementById('pw-reset-panel');if(!p)return;p.style.display=p.style.display==='block'?'none':'block';if(p.style.display==='block'){var re=document.getElementById('reset-email');var ae=document.getElementById('auth-email');if(re&&ae)re.value=ae.value;}}
+async function sendReset(){var email=(document.getElementById('reset-email').value||'').trim();var msg=document.getElementById('reset-msg');if(!email){msg.textContent='이메일을 입력해주세요';msg.style.color='var(--danger)';msg.style.display='block';return;}try{await auth.sendPasswordResetEmail(email);msg.textContent='재설정 이메일 발송됨';msg.style.color='var(--blue)';msg.style.display='block';}catch(e){msg.textContent='등록되지 않은 이메일이에요';msg.style.color='var(--danger)';msg.style.display='block';}}
+function detectCaps(e){var w=document.getElementById('caps-warn');if(!w)return;var caps=e.getModifierState&&e.getModifierState('CapsLock');var kor=/[가-힣ㄱ-ㅎㅏ-ㅣ]/.test((e.target||{}).value||'');w.style.display=(caps||kor)?'block':'none';w.textContent=kor?'⚠️ 한글이 입력됐어요. 한/영 키를 확인하세요.':caps?'⚠️ Caps Lock이 켜져 있어요.':'⚠️';}
+
+async function logoutUser(){if(!confirm('로그아웃 할까요?'))return;try{await auth.signOut();}catch(e){}handleAuthUser(null);}
+
+/* Firebase SDK 로드 완료 후 실제 초기화 */
+window.addEventListener('load',function(){
+  try{
+    if(typeof firebase!=='undefined'&&firebase.initializeApp){
+      var cfg={apiKey:"AIzaSyCw0jBBIKJZ_ZAOvu4aN5OG84yG_XtrKY4",authDomain:"stock-tracker-81099.firebaseapp.com",projectId:"stock-tracker-81099",storageBucket:"stock-tracker-81099.firebasestorage.app",messagingSenderId:"924968717057",appId:"1:924968717057:web:92bfec9f112c404b55a900"};
+      if(!firebase.apps||!firebase.apps.length)firebase.initializeApp(cfg);
+      auth=firebase.auth();db=firebase.firestore();
+      auth.onAuthStateChanged(handleAuthUser);
+      console.log('[발상연구소] Firebase 연결됨 ✓');
+    }else{
+      console.warn('[발상연구소] Firebase SDK 없음 — 로컬 전용 모드');
+      document.getElementById('vision-screen').style.display='flex';
+      if(typeof lucide!=='undefined')lucide.createIcons();
+      startVisionTimer();
+    }
+  }catch(e){
+    console.warn('[발상연구소] Firebase 초기화 실패:',e.message);
+    document.getElementById('vision-screen').style.display='flex';
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    startVisionTimer();
+  }
+});
+
+/* DOMContentLoaded: 초기 화면 표시 */
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('vision-screen').style.display='flex';
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-body').style.display='none';
+  if(typeof lucide!=='undefined')lucide.createIcons();
+});
+</script>
+
 </body>
 </html>
