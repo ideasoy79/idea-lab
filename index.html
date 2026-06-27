@@ -1429,6 +1429,10 @@ async function doAuth(){
   var pw=document.getElementById('auth-pw').value||'';
   document.getElementById('login-error').style.display='none';
   if(!email||!pw){showLoginErr('이메일과 비밀번호를 입력해주세요');return;}
+  // auth 초기화 여부 확인
+  if(!auth||typeof auth.signInWithEmailAndPassword!=='function'){
+    showLoginErr('Firebase가 아직 초기화되지 않았어요. 잠시 후 다시 시도해주세요.');return;
+  }
   var btn=document.getElementById('auth-submit');
   btn.textContent='처리 중...';btn.disabled=true;
   try{
@@ -1439,8 +1443,20 @@ async function doAuth(){
       localStorage.setItem('lab-nickname',name);
     }else{await auth.signInWithEmailAndPassword(email,pw);}
   }catch(e){
-    var msgs={'auth/email-already-in-use':'이미 사용 중인 이메일이에요','auth/invalid-email':'이메일 형식이 올바르지 않아요','auth/weak-password':'비밀번호는 6자 이상이어야 해요','auth/invalid-credential':'이메일 또는 비밀번호가 틀렸어요','auth/user-not-found':'등록된 계정이 없어요','auth/wrong-password':'비밀번호가 틀렸어요','auth/network-request-failed':'네트워크 연결을 확인해주세요'};
-    showLoginErr(msgs[e.code]||'오류: '+(e.code||e.message||'unknown'));
+    var msgs={
+      'auth/email-already-in-use':'이미 사용 중인 이메일이에요',
+      'auth/invalid-email':'이메일 형식이 올바르지 않아요',
+      'auth/weak-password':'비밀번호는 6자 이상이어야 해요',
+      'auth/invalid-credential':'이메일 또는 비밀번호가 틀렸어요',
+      'auth/user-not-found':'등록된 계정이 없어요',
+      'auth/wrong-password':'비밀번호가 틀렸어요',
+      'auth/network-request-failed':'네트워크 연결을 확인해주세요',
+      'auth/unauthorized-domain':'이 도메인은 Firebase에 등록되지 않았어요. Firebase Console → Authentication → Settings → 승인된 도메인에 현재 주소를 추가해주세요',
+      'auth/too-many-requests':'로그인 시도가 너무 많아요. 잠시 후 다시 시도해주세요',
+      'auth/user-disabled':'비활성화된 계정이에요. 관리자에게 문의해주세요',
+      'auth/operation-not-allowed':'이메일/비밀번호 로그인이 비활성화되어 있어요. Firebase Console → Authentication → Sign-in method에서 활성화해주세요'
+    };
+    showLoginErr(msgs[e.code]||'로그인 오류 ('+( e.code||e.message||'unknown')+')' );
   }
   btn.textContent=isSignup?'회원가입':'로그인';btn.disabled=false;
 }
