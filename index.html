@@ -14,15 +14,43 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root{
-  --bg:#f5f5f7; --card:#fff; --text1:#1d1d1f; --text2:#86868b;
-  --blue:#0066cc; --blue-h:#0077ED; --border:#d2d2d7;
-  --hi-bg:#e8f0fe; --danger:#d70015;
-  --grad-ai:linear-gradient(90deg,#2B80FF,#D93B88,#FF8D3B);
-  --grad-blue:linear-gradient(135deg,#007aff,#005bb5);
-  --sh-sm:0 2px 8px rgba(0,0,0,.05);
-  --sh-md:0 4px 16px rgba(0,0,0,.09);
-  --sh-lg:0 8px 32px rgba(0,0,0,.13);
-  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-pill:999px;
+  /* ── 베이스 팔레트 ── */
+  --bg:#F4F3EF;           /* 따뜻한 크림 캔버스 */
+  --card:#FFFFFF;
+  --card-alt:#FAF9F6;     /* 카드 내 섹션 */
+  --text1:#18181B;        /* 진한 잉크 */
+  --text2:#71717A;        /* 미디엄 */
+  --text3:#A1A1AA;        /* 라이트 */
+  --border:#E4E2DC;       /* 따뜻한 테두리 */
+  --border-s:#D1CFC8;     /* 강조 테두리 */
+
+  /* ── 포인트 컬러 ── */
+  --blue:#4F46E5;         /* 인디고 */
+  --blue-h:#4338CA;
+  --blue-light:#EEF2FF;   /* 인디고 라이트 */
+  --hi-bg:#EEF2FF;
+  --danger:#DC2626;
+
+  /* ── 그라디언트 (세련된 인디고→바이올렛→로즈) ── */
+  --grad-ai:linear-gradient(135deg,#6366F1 0%,#A855F7 50%,#F43F5E 100%);
+  --grad-blue:linear-gradient(135deg,#4F46E5,#7C3AED);
+  --grad-warm:linear-gradient(135deg,#F59E0B,#EF4444);
+
+  /* ── 영감 창고 발상법 컬러 ── */
+  --m-combine:#8B5CF6;    /* 보라 — 결합 */
+  --m-transfer:#0EA5E9;   /* 하늘 — 전환 */
+  --m-remove:#10B981;     /* 에메랄드 — 제거 */
+  --m-reverse:#F59E0B;    /* 앰버 — 역발상 */
+  --m-extreme:#F43F5E;    /* 로즈 — 극단화 */
+
+  /* ── 그림자 (보더+섀도 조합으로 입체감) ── */
+  --sh-sm:0 1px 3px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04);
+  --sh-md:0 4px 16px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.03);
+  --sh-lg:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.04);
+  --sh-blue:0 4px 20px rgba(79,70,229,.25);
+
+  /* ── 반경 ── */
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:28px; --r-pill:999px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -31,13 +59,15 @@ body{
   line-height:1.5; min-height:100vh; overflow-y:scroll;
   -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
   padding-bottom:env(safe-area-inset-bottom,16px);
+  letter-spacing:-0.01em;
 }
-.gradient-text{background:var(--grad-ai);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.gradient-text{background:var(--grad-ai);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:inherit;}
 h1,h2,h3{font-weight:700;letter-spacing:-.01em;}
 
 /* ── Header ── */
+body::before{content:'';display:block;height:3px;background:var(--grad-ai);position:fixed;top:0;left:0;right:0;z-index:9999;}
 header{
-  padding:20px 20px 0;
+  padding:22px 20px 0;
   display:flex; align-items:center; justify-content:space-between;
   max-width:960px; margin:0 auto;
 }
@@ -50,19 +80,24 @@ header h1{font-size:1.5rem;display:flex;align-items:center;gap:8px;white-space:n
 
 /* ── Nav ── */
 nav{
-  max-width:960px; margin:16px auto 16px;
-  display:flex; background:#e5e5ea;
-  padding:4px; border-radius:var(--r-pill); gap:2px;
+  max-width:960px; margin:14px auto 14px;
+  display:flex; background:var(--border);
+  padding:3px; border-radius:var(--r-pill); gap:2px;
   overflow-x:auto; -webkit-overflow-scrolling:touch;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.08);
 }
 nav::-webkit-scrollbar{display:none;}
 nav button{
-  flex:1; min-width:64px; padding:10px 6px;
+  flex:1; min-width:60px; padding:9px 6px;
   background:transparent; border:none; border-radius:var(--r-pill);
-  cursor:pointer; font-family:inherit; font-size:.88rem; font-weight:600;
+  cursor:pointer; font-family:inherit; font-size:.84rem; font-weight:600;
   color:var(--text2); transition:all .2s; white-space:nowrap;
+  letter-spacing:-.01em;
 }
-nav button.active{background:var(--card);color:var(--text1);box-shadow:0 2px 4px rgba(0,0,0,.07);}
+nav button.active{
+  background:var(--card);color:var(--text1);
+  box-shadow:0 1px 4px rgba(0,0,0,.1),0 0 0 1px rgba(0,0,0,.04);
+}
 
 /* ── Main ── */
 main{max-width:960px;margin:0 auto;padding:16px 16px 80px;}
@@ -72,7 +107,7 @@ section.show{display:block;}
 
 .sprint-head{margin-bottom:28px;text-align:center;}
 .eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.05em;color:var(--text2);text-transform:uppercase;margin-bottom:8px;}
-.sprint-head h2{font-size:2rem;line-height:1.3;}
+.sprint-head h2{font-size:2rem;line-height:1.25;letter-spacing:-.03em;font-weight:800;}
 @media(max-width:480px){.sprint-head h2{font-size:1.6rem;}}
 
 /* ── Inputs ── */
@@ -92,8 +127,9 @@ button.primary{
   background:var(--blue);color:#fff;border:none;
   padding:12px 22px;border-radius:var(--r-pill);
   cursor:pointer;white-space:nowrap;transition:all .2s;
-  box-shadow:0 4px 12px rgba(0,102,204,.28);
+  box-shadow:var(--sh-blue);
   display:inline-flex;align-items:center;gap:6px;
+  letter-spacing:-.01em;
 }
 button.primary:hover{background:var(--blue-h);transform:translateY(-1px);}
 button.primary:active{transform:translateY(0);}
@@ -163,7 +199,8 @@ button.ghost:active{background:#f0f0f0;}
 .vault-item{
   background:var(--card);padding:20px;margin-bottom:14px;
   border-radius:var(--r-lg);box-shadow:var(--sh-sm);
-  transition:transform .2s,box-shadow .2s;border:1px solid rgba(0,0,0,.03);
+  transition:transform .2s,box-shadow .2s;
+  border:1px solid var(--border);
 }
 .vault-item:hover{transform:translateY(-2px);box-shadow:var(--sh-md);}
 .vault-item .meta{font-size:.82rem;color:var(--text2);margin-bottom:6px;font-weight:500;}
@@ -181,8 +218,8 @@ button.ghost:active{background:#f0f0f0;}
 .total{margin-left:auto;font-size:1.2rem;font-weight:700;color:var(--text2);}
 .total.hi{color:var(--blue);}
 .vault-actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.ai-box{margin:14px 0;background:#fafafa;padding:14px 18px;border-radius:var(--r-md);border:1px solid var(--border);}
-.ai-box .ai-tag{font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ai-box{margin:14px 0;background:var(--blue-light);padding:14px 18px;border-radius:var(--r-md);border:1px solid rgba(79,70,229,.15);}
+.ai-box .ai-tag{font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px;letter-spacing:.02em;text-transform:uppercase;}
 .ai-box .prov{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);font-size:.92rem;line-height:1.5;}
 .ai-box .prov:last-child{border-bottom:none;}
 .ai-box .prov .ptype{font-size:.72rem;font-weight:700;color:#fff;background:var(--blue);padding:3px 8px;border-radius:var(--r-sm);white-space:nowrap;margin-top:2px;flex-shrink:0;}
@@ -195,7 +232,7 @@ button.ghost:active{background:#f0f0f0;}
 /* ── Board ── */
 .kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
 @media(max-width:740px){.kanban{grid-template-columns:1fr;}}
-.col{background:#e5e5ea;padding:14px;border-radius:var(--r-lg);}
+.col{background:var(--border);padding:14px;border-radius:var(--r-lg);border:1px solid var(--border-s);}
 .col h3{font-size:.95rem;font-weight:700;padding-bottom:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,.1);}
 .col h3 span{color:var(--text2);font-size:.82rem;font-weight:600;background:#fff;padding:2px 8px;border-radius:var(--r-pill);}
 .card{background:var(--card);padding:14px;margin-bottom:10px;border-radius:var(--r-md);font-size:.92rem;box-shadow:var(--sh-sm);transition:transform .2s,box-shadow .2s;}
@@ -213,7 +250,7 @@ button.ghost:active{background:#f0f0f0;}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
 @media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr);}}
 .stat{background:var(--card);padding:18px;text-align:center;border-radius:var(--r-lg);box-shadow:var(--sh-sm);}
-.stat .v{font-size:2.2rem;font-weight:700;background:var(--grad-blue);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;}
+.stat .v{font-size:2.2rem;font-weight:800;background:var(--grad-ai);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;letter-spacing:-.03em;}
 .stat .l{font-size:.82rem;color:var(--text2);font-weight:600;margin-top:4px;}
 .hist-item{background:var(--card);margin-bottom:14px;border-radius:var(--r-md);box-shadow:var(--sh-sm);overflow:hidden;}
 .hist-item summary{padding:14px 18px;cursor:pointer;display:flex;gap:14px;align-items:center;list-style:none;transition:background .2s;font-weight:600;font-size:.95rem;}
@@ -282,9 +319,10 @@ dialog .sep{border:none;border-top:1px solid var(--border);margin:20px 0;}
 footer{
   max-width:960px;margin:0 auto;
   padding:20px 20px max(20px,env(safe-area-inset-bottom,20px));
-  font-size:.82rem;color:var(--text2);
+  font-size:.8rem;color:var(--text3);
   border-top:1px solid var(--border);
   display:flex;align-items:center;gap:6px;
+  letter-spacing:.01em;
 }
 
 /* ═══════════════════════════════════════
@@ -421,6 +459,109 @@ footer{
 .prompt-card .pc-actions a,
 .prompt-card .pc-actions button{font-size:.82rem;padding:8px 14px;}
 
+
+/* ════════════════════════════════════════════════
+   영감 창고 (Inspiration Vault)
+════════════════════════════════════════════════ */
+/* 발상법 메소드 배지 */
+.method-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:.74rem;font-weight:700;padding:3px 9px;
+  border-radius:var(--r-pill);white-space:nowrap;
+  letter-spacing:.02em;text-transform:uppercase;
+}
+.method-combine{background:rgba(139,92,246,.12);color:#8B5CF6;}
+.method-transfer{background:rgba(14,165,233,.12);color:#0EA5E9;}
+.method-remove{background:rgba(16,185,129,.12);color:#10B981;}
+.method-reverse{background:rgba(245,158,11,.12);color:#D97706;}
+.method-extreme{background:rgba(244,63,94,.12);color:#F43F5E;}
+
+/* 출처 배지 */
+.source-badge{
+  font-size:.72rem;font-weight:600;padding:2px 8px;
+  border-radius:var(--r-pill);background:var(--card-alt);
+  border:1px solid var(--border);color:var(--text2);
+}
+
+/* 영감 카드 */
+.insight-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:18px 18px 18px 22px;
+  margin-bottom:12px;position:relative;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:var(--sh-sm);
+}
+.insight-card::before{
+  content:'';position:absolute;left:0;top:12px;bottom:12px;
+  width:3px;border-radius:0 3px 3px 0;
+  background:var(--method-color,var(--border-s));
+}
+.insight-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md);}
+.insight-card.combine{--method-color:var(--m-combine);}
+.insight-card.transfer{--method-color:var(--m-transfer);}
+.insight-card.remove{--method-color:var(--m-remove);}
+.insight-card.reverse{--method-color:var(--m-reverse);}
+.insight-card.extreme{--method-color:var(--m-extreme);}
+.insight-meta{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.insight-txt{font-size:1rem;font-weight:600;line-height:1.5;margin-bottom:10px;color:var(--text1);}
+.insight-note{
+  font-size:.85rem;color:var(--text2);background:var(--card-alt);
+  border-radius:var(--r-sm);padding:10px 12px;border:1px solid var(--border);
+  white-space:pre-wrap;line-height:1.6;
+}
+.insight-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center;}
+
+/* 영감 추가 폼 */
+.insight-form{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:20px;margin-bottom:20px;
+  box-shadow:var(--sh-sm);
+}
+.insight-form-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.insight-form-row select{
+  font-family:inherit;font-size:.9rem;font-weight:600;
+  background:var(--card-alt);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:10px 12px;color:var(--text1);
+  cursor:pointer;flex-shrink:0;
+}
+.insight-form-row select:focus{outline:none;border-color:var(--blue);}
+
+/* 발상법 필터 탭 */
+.method-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.method-filter button{
+  font-family:inherit;font-size:.8rem;font-weight:600;
+  padding:6px 12px;border-radius:var(--r-pill);
+  border:1px solid var(--border);background:var(--card);
+  cursor:pointer;transition:all .15s;color:var(--text2);
+}
+.method-filter button.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+/* 스프린트 연결 — 영감 빠른 참고 */
+.insight-quick-btn{
+  display:flex;align-items:center;gap:6px;
+  font-size:.85rem;font-weight:600;padding:10px 16px;
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);
+  border-radius:var(--r-pill);cursor:pointer;color:var(--blue);
+  font-family:inherit;transition:all .2s;white-space:nowrap;
+}
+.insight-quick-btn:hover{background:rgba(99,102,241,.18);}
+
+/* 영감 드로어 (스프린트 중 참고 패널) */
+.insight-drawer{
+  display:none;margin-top:16px;
+  background:var(--blue-light);border:1px solid rgba(99,102,241,.2);
+  border-radius:var(--r-lg);padding:16px;max-height:280px;overflow-y:auto;
+}
+.insight-drawer.open{display:block;animation:slideUp .25s ease;}
+.insight-drawer-item{
+  padding:10px 12px;background:var(--card);border-radius:var(--r-md);
+  margin-bottom:8px;font-size:.88rem;border:1px solid var(--border);
+  cursor:default;
+}
+.insight-drawer-item:last-child{margin-bottom:0;}
+.insight-drawer-item .imethod{font-size:.72rem;font-weight:700;color:var(--blue);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
+.insight-drawer-empty{font-size:.88rem;color:var(--text2);text-align:center;padding:20px;}
+
 </style>
 </head>
 <body>
@@ -483,6 +624,7 @@ footer{
 
 <nav>
   <button class="active" data-tab="sprint">아이디어</button>
+  <button data-tab="insight">영감 창고</button>
   <button data-tab="vault">보관함</button>
   <button data-tab="board">검증</button>
   <button data-tab="history">히스토리</button>
@@ -527,6 +669,8 @@ footer{
       <i data-lucide="rocket" size="18"></i> 파괴 구간 — 거꾸로 뒤집거나, 10배로 키워보세요.
     </div>
     <div id="aiProvBox"></div>
+    <button class="insight-quick-btn" onclick="toggleInsightDrawer()" style="margin-bottom:12px;width:100%;justify-content:center;"><i data-lucide="lightbulb" size="15"></i> 영감 창고에서 힌트 찾기</button>
+    <div class="insight-drawer" id="insightDrawer"></div>
     <div class="idea-input-row" id="ideaInputRow">
       <span class="num" id="nextNum">1</span>
       <div class="input-wrap">
@@ -544,6 +688,57 @@ footer{
       </div>
     </div>
   </div>
+</section>
+
+
+<!-- ===== 영감 창고 ===== -->
+<section id="insight">
+  <div class="sprint-head">
+    <div class="eyebrow">Inspiration Vault</div>
+    <h2>발견한 발상을 모아<br><span class="gradient-text">나만의 창고</span>를 채우세요</h2>
+    <p style="font-size:.9rem;color:var(--text2);margin-top:10px;">일상에서 "와, 이런 생각도 할 수 있구나" 하는 순간을 기록하세요</p>
+  </div>
+
+  <!-- 빠른 추가 폼 -->
+  <div class="insight-form">
+    <div class="input-wrap" style="margin-bottom:12px;">
+      <input type="text" id="insightInput" placeholder="발견한 아이디어나 발상을 기록하세요" maxlength="200"
+        oninput="updateCharCount(this,'insightCount')">
+      <span class="char-count" id="insightCount">0 / 200</span>
+    </div>
+    <div class="insight-form-row">
+      <select id="insightMethod">
+        <option value="combine">🔀 결합 — 두 개를 합쳐서</option>
+        <option value="transfer">🔄 전환 — 다른 분야에서 가져와서</option>
+        <option value="remove">➖ 제거 — 당연한 걸 없애서</option>
+        <option value="reverse">🔃 역발상 — 완전히 뒤집어서</option>
+        <option value="extreme">⚡ 극단화 — 10배 키우거나 0으로</option>
+      </select>
+      <select id="insightSource">
+        <option value="유튜브">📹 유튜브</option>
+        <option value="뉴스">📰 뉴스·블로그</option>
+        <option value="일상">🌿 일상 관찰</option>
+        <option value="SNS">📱 SNS</option>
+        <option value="책">📚 책</option>
+        <option value="기타">💡 기타</option>
+      </select>
+      <button class="primary" onclick="addInsight()" style="margin-left:auto;">
+        <i data-lucide="plus" size="16"></i> 저장
+      </button>
+    </div>
+  </div>
+
+  <!-- 필터 -->
+  <div class="method-filter" id="insightFilter">
+    <button class="active" data-filter="all" onclick="setInsightFilter('all',this)">전체</button>
+    <button data-filter="combine" onclick="setInsightFilter('combine',this)">🔀 결합</button>
+    <button data-filter="transfer" onclick="setInsightFilter('transfer',this)">🔄 전환</button>
+    <button data-filter="remove" onclick="setInsightFilter('remove',this)">➖ 제거</button>
+    <button data-filter="reverse" onclick="setInsightFilter('reverse',this)">🔃 역발상</button>
+    <button data-filter="extreme" onclick="setInsightFilter('extreme',this)">⚡ 극단화</button>
+  </div>
+
+  <div id="insightList"></div>
 </section>
 
 <!-- ===== 보관함 ===== -->
@@ -673,7 +868,7 @@ const store = {
 };
 
 /* ── 전역 상태 ── */
-let state = { streak:0, lastDay:null, sprint:null, vault:[], board:[], history:[], product:[] };
+let state = { streak:0, lastDay:null, sprint:null, vault:[], board:[], history:[], product:[], insights:[] };
 let pendingBoardIdea=null, pendingRejectId=null;
 let vaultSort='recent', vaultQuery='', histQuery='';
 
@@ -739,7 +934,11 @@ function buildSeedData(){
     board:[
       {id:newId(),txt:'AI 챗봇 점장 대행 — 신입 온보딩 Q&A',hyp:'점장은 신입 온보딩 시간 절약에 월 2만원을 낼 것이다',col:'test',win:false,reason:'',date:dAgo(5),testDate:dAgo(2),movedToProduct:false,aiRefined:null}
     ],
-    history:[], product:[]
+    history:[], product:[],
+    insights:[
+      {id:newId(),txt:'사무용 의자 바퀴를 인라인스케이트 바퀴로 교체 — 부드럽고 소음 없음',source:'유튜브',method:'combine',date:dAgo(1),note:'경계를 허무는 결합법의 핵심: 이미 존재하는 두 제품의 최강점을 합친다. 새로 만든 게 아니라 "왜 이걸 같이 안 썼지?"를 발견한 것.'},
+      {id:newId(),txt:'택시 호출 대신 승객이 직접 가격을 제시하는 역경매 교통 앱',source:'뉴스·블로그',method:'reverse',date:dAgo(3),note:'공급자가 가격을 정한다는 기존 전제를 완전히 뒤집었다. 역발상의 교과서.'}
+    ]
   };
 }
 
@@ -1347,11 +1546,192 @@ function importData(inp){ const f=inp.files[0]; if(!f) return; const r=new FileR
 
 /* ── renderAll (FIX 4: renderHistory 한 번만 호출) ── */
 function renderSteakUI(){ $('streakNum').textContent=state.streak; }
+
+/* ════════════════════════════════════════════════════════
+   영감 창고 — Inspiration Vault
+════════════════════════════════════════════════════════ */
+let insightFilter = 'all';
+
+const METHOD_INFO = {
+  combine:  {label:'🔀 결합',  color:'var(--m-combine)'},
+  transfer: {label:'🔄 전환',  color:'var(--m-transfer)'},
+  remove:   {label:'➖ 제거',  color:'var(--m-remove)'},
+  reverse:  {label:'🔃 역발상',color:'var(--m-reverse)'},
+  extreme:  {label:'⚡ 극단화',color:'var(--m-extreme)'},
+};
+const SOURCE_ICONS = {유튜브:'📹',뉴스:'📰',일상:'🌿',SNS:'📱',책:'📚',기타:'💡'};
+
+function addInsight(){
+  const txt=$('insightInput').value.trim();
+  if(!txt) return $('insightInput').focus();
+  const method=$('insightMethod').value;
+  const source=$('insightSource').value;
+  state.insights.unshift({
+    id:newId(), txt, source, method,
+    date:today(), note:''
+  });
+  $('insightInput').value=''; updateCharCount($('insightInput'),'insightCount');
+  save(); renderInsights();
+  showToast('영감 저장됨 💡');
+}
+$('insightInput')?.addEventListener('keydown',e=>{ if(e.key==='Enter') addInsight(); });
+
+function setInsightFilter(f, btn){
+  insightFilter=f;
+  document.querySelectorAll('.method-filter button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderInsights();
+}
+
+function delInsight(id){
+  state.insights=state.insights.filter(x=>x.id!==id);
+  save(); renderInsights(); showToast('삭제됨');
+}
+
+function updateInsightNote(id, val){
+  const it=state.insights.find(x=>x.id===id);
+  if(it){ it.note=val; save(); }
+}
+
+function renderInsights(){
+  const l=$('insightList'); if(!l) return;
+  if(!state.insights) state.insights=[];
+  const items=insightFilter==='all'
+    ? state.insights
+    : state.insights.filter(x=>x.method===insightFilter);
+
+  if(!state.insights.length){
+    l.innerHTML=`<div class="empty">
+      <i data-lucide="lightbulb" size="44" style="opacity:.2;display:block;margin:0 auto 14px;"></i>
+      <b>영감 창고가 비어있습니다</b>
+      유튜브, 뉴스, 일상에서 "와!" 하는 순간을 기록해보세요
+    </div>`; lucide.createIcons(); return;
+  }
+  if(!items.length){
+    l.innerHTML=`<div class="empty">이 발상법으로 저장된 영감이 없어요</div>`; return;
+  }
+
+  l.innerHTML=items.map(it=>{
+    const m=METHOD_INFO[it.method]||{label:it.method,color:'var(--border-s)'};
+    const si=SOURCE_ICONS[it.source]||'💡';
+    return `<div class="insight-card ${it.method}">
+      <div class="insight-meta">
+        <span class="method-badge method-${it.method}">${m.label}</span>
+        <span class="source-badge">${si} ${esc(it.source)}</span>
+        <span style="font-size:.78rem;color:var(--text3);margin-left:auto;">${it.date}</span>
+      </div>
+      <div class="insight-txt">${esc(it.txt)}</div>
+      ${it.note
+        ? `<div class="insight-note">${esc(it.note)}</div>`
+        : `<textarea placeholder="핵심 포인트 메모 — AI 분석 후 깨달은 점을 여기에 정리하세요"
+            style="width:100%;border:1px dashed var(--border);border-radius:var(--r-sm);
+                   padding:10px 12px;font-family:inherit;font-size:.85rem;resize:none;
+                   background:var(--card-alt);color:var(--text1);min-height:60px;"
+            onblur="updateInsightNote(${it.id},this.value)"></textarea>`
+      }
+      <div class="insight-actions">
+        <button class="ghost" id="ins-${it.id}" onclick="analyzeInsight(${it.id})">
+          <i data-lucide="sparkles" size="14"></i> AI 분석
+        </button>
+        ${it.note
+          ? `<button class="ghost" onclick="editNote(${it.id})" style="font-size:.8rem;">
+               <i data-lucide="pencil" size="13"></i> 메모 수정
+             </button>`
+          : ''}
+        <button class="ghost" onclick="delInsight(${it.id})"
+          style="margin-left:auto;color:var(--text3);">
+          <i data-lucide="trash-2" size="13"></i>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+function editNote(id){
+  const it=state.insights.find(x=>x.id===id); if(!it) return;
+  // note를 textarea로 전환
+  const card=document.querySelector(`#ins-${id}`)?.closest('.insight-card');
+  const noteEl=card?.querySelector('.insight-note');
+  if(!noteEl) return;
+  const ta=document.createElement('textarea');
+  ta.value=it.note;
+  ta.style.cssText='width:100%;border:1px dashed var(--border);border-radius:var(--r-sm);padding:10px 12px;font-family:inherit;font-size:.85rem;resize:none;background:var(--card-alt);color:var(--text1);min-height:80px;';
+  ta.onblur=()=>{ updateInsightNote(id,ta.value); renderInsights(); };
+  noteEl.replaceWith(ta); ta.focus();
+}
+
+/* ── 스프린트 연결: 영감 창고 드로어 ── */
+function toggleInsightDrawer(){
+  const d=$('insightDrawer'); if(!d) return;
+  d.classList.toggle('open');
+  if(d.classList.contains('open')) renderInsightDrawer();
+}
+
+function renderInsightDrawer(){
+  const d=$('insightDrawer'); if(!d) return;
+  if(!state.insights.length){
+    d.innerHTML=`<div class="insight-drawer-empty">💡 아직 저장된 영감이 없어요. 영감 창고 탭에서 먼저 기록해보세요.</div>`; return;
+  }
+  const top=[...state.insights].slice(0,8);
+  d.innerHTML=`<div style="font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">영감 창고 최근 ${top.length}건</div>`
+    + top.map(it=>{
+        const m=METHOD_INFO[it.method]||{};
+        return `<div class="insight-drawer-item">
+          <div class="imethod">${m.label||it.method}</div>
+          <div style="font-size:.88rem;font-weight:600;">${esc(it.txt)}</div>
+          ${it.note?`<div style="font-size:.8rem;color:var(--text2);margin-top:4px;">${esc(it.note.slice(0,80))}${it.note.length>80?'…':''}</div>`:''}
+        </div>`;
+      }).join('');
+}
+
+/* ── AI 발상법 분석 (buildAndCopy 방식) ── */
+async function analyzeInsight(id){
+  const it=state.insights.find(x=>x.id===id); if(!it) return;
+  const b=$('ins-'+id); if(!b) return;
+  b.disabled=true; b.innerHTML='<div class="spinner"></div>';
+  const m=METHOD_INFO[it.method]||{label:it.method};
+
+  const prompt=`다음 발상 사례를 분석해서 발상 근육을 키울 수 있도록 도와주세요.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 발견한 사례: "${it.txt}"
+📌 출처: ${it.source}
+📌 발상법 분류: ${m.label}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+다음 4가지를 한국어로 분석해 주세요:
+
+① 핵심 발상 원리 (한 줄)
+이 사례의 "진짜 혁신"이 무엇인지 한 줄로 날카롭게 정리해주세요.
+
+② 이 발상법이 왜 효과적인가?
+"${m.label}" 발상법이 이 사례에서 어떻게 작동했는지, 
+기존 방식의 어떤 한계를 뛰어넘었는지 설명해주세요.
+
+③ 같은 방식으로 성공한 다른 사례 2~3개
+다른 업계나 제품에서 동일한 발상법을 사용한 사례를 소개해주세요.
+
+④ 내 아이디어에 적용하기 — 질문 3개
+이 발상법을 새로운 아이디어를 만들 때 활용하기 위한
+도발적인 질문 3개를 만들어 주세요.
+각 질문은 "만약 ~~한다면?" 형식으로.
+
+──────────────────────────────
+마지막으로 이 발상의 핵심을 '한 줄 공식'으로 만들어 주세요.
+예: "기존 A의 단점을 B 분야의 장점으로 대체한다"`;
+
+  b.disabled=false; b.innerHTML='<i data-lucide="sparkles" size="14"></i> AI 분석';
+  await buildAndCopy(prompt, b, '발상 분석');
+  lucide.createIcons();
+}
+
 function renderAll(){
   renderSprint();
+  renderInsights();
   renderVault();
   renderBoard();
-  renderHistory(); // FIX 4: renderBoard에서 제거, 여기서만 한 번 호출
+  renderHistory();
   renderProduct();
   renderSteakUI();
   renderHomeBanner();
